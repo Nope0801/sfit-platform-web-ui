@@ -76,6 +76,16 @@ export default function ProfilePage() {
   }, []);
 
   const handleInputChange = (field: string, value: string) => {
+    if (field === "github" || field === "linkedin" || field === "facebook") {
+      setFormData((prev) => ({
+        ...prev,
+        social_link: {
+          ...prev.social_link,
+          [field]: value,
+        },
+      }));
+      return;
+    }
     setFormData((prev) => ({
       ...prev,
       [field]: value,
