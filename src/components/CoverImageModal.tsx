@@ -6,28 +6,28 @@ import { useEffect, useState } from "react";
 interface AvatarUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currentAvatar?: string;
+  currentCoverImage?: string;
   onSave: (imageURL: string | null) => void;
 }
 
-export default function AvatarUploadModal({
+export default function CoverImageUploadModal({
   isOpen,
   onClose,
-  currentAvatar,
+  currentCoverImage,
   onSave,
 }: AvatarUploadModalProps) {
-  const [preview, setPreview] = useState<string | null>(currentAvatar || null);
+  const [preview, setPreview] = useState<string | null>(currentCoverImage || null);
   const [imageURL, setImageURL] = useState<string>("");
 
   useEffect(() => {
-    setPreview(currentAvatar || null);
+    setPreview(currentCoverImage || null);
     setImageURL("");
 
     return () => {
       setPreview(null);
       setImageURL("");
     };
-  }, [currentAvatar]);
+  }, [currentCoverImage]);
 
   const handleSave = () => {
     onSave(imageURL);
@@ -35,7 +35,7 @@ export default function AvatarUploadModal({
   };
 
   const handleClose = () => {
-    setPreview(currentAvatar || null);
+    setPreview(currentCoverImage || null);
     setImageURL("");
     onClose();
   };
@@ -47,7 +47,7 @@ export default function AvatarUploadModal({
       <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-gray-900">
-            Cập nhật ảnh đại diện
+            Cập nhật ảnh bìa
           </h3>
           <button
             onClick={handleClose}
@@ -59,7 +59,7 @@ export default function AvatarUploadModal({
 
         <div className="text-center mb-6">
           <div className="relative inline-block">
-            <div className="w-32 h-32 bg-gray-200 rounded-full overflow-hidden mx-auto mb-4">
+            <div className="w-64 h-32 bg-gray-200 rounded-2xl overflow-hidden mx-auto mb-4">
               {preview ? (
                 <img
                   src={preview}
@@ -80,7 +80,7 @@ export default function AvatarUploadModal({
             value={imageURL}
             onChange={(e) => {
               setImageURL(e.target.value);
-              setPreview(e.target.value || currentAvatar || null);
+              setPreview(e.target.value || currentCoverImage || null);
             }}
             className="p-2 text-gray-900 w-full border-b border-gray-300 focus:border-[#267452] outline-none"
           />

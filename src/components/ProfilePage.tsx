@@ -1,160 +1,180 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import AvatarUploadModal from './AvatarUploadModal';
+import { useTokenSubject } from "@/hooks/token-hooks";
+import useUserProfile, {
+  useUpdateUserProfile,
+} from "@/hooks/user-profile-hooks";
 import {
-  UserIcon,
-  PencilIcon,
-  CameraIcon,
-  EnvelopeIcon,
-  PhoneIcon,
-  MapPinIcon,
-  CalendarIcon,
+  UserProfileResponse,
+  UserProfileUpdateRequest,
+} from "@/types/user-profile";
+import {
   AcademicCapIcon,
-  TrophyIcon,
+  CalendarIcon,
+  CameraIcon,
   ChartBarIcon,
-  CogIcon,
-  ShieldCheckIcon,
-  KeyIcon,
-  BellIcon,
-  EyeIcon,
   CheckCircleIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline';
-
-// Sample user data
-const userData = {
-  id: 1,
-  name: 'Nguyễn Văn A',
-  email: 'nguyen.van.a@student.university.edu.vn',
-  phone: '0123456789',
-  avatar: '/api/placeholder/150/150',
-  coverImage: '/api/placeholder/800/200',
-  bio: 'Sinh viên năm 3 ngành Công nghệ thông tin, đam mê lập trình web và AI. Hiện đang tham gia các dự án về React.js và Python.',
-  location: 'TP. Hồ Chí Minh',
-  joinDate: '2023-09-15',
-  studentId: 'IT2021001',
-  major: 'Công nghệ thông tin',
-  year: 'Năm 3',
-  gpa: 3.75,
-  socialLinks: {
-    github: 'https://github.com/nguyenvana',
-    linkedin: 'https://linkedin.com/in/nguyenvana',
-    facebook: 'https://facebook.com/nguyenvana'
-  },
-  skills: [
-    { name: 'JavaScript', level: 85, category: 'Programming' },
-    { name: 'React.js', level: 80, category: 'Frontend' },
-    { name: 'Python', level: 75, category: 'Programming' },
-    { name: 'Node.js', level: 70, category: 'Backend' },
-    { name: 'HTML/CSS', level: 90, category: 'Frontend' },
-    { name: 'Git', level: 85, category: 'Tools' },
-    { name: 'MongoDB', level: 65, category: 'Database' },
-    { name: 'Docker', level: 60, category: 'DevOps' }
-  ],
-  achievements: [
-    {
-      id: 1,
-      title: 'Hoàn thành khóa React.js',
-      description: 'Đã hoàn thành xuất sắc khóa học React.js từ cơ bản đến nâng cao',
-      date: '2025-01-15',
-      type: 'course',
-      badge: '🎓'
-    },
-    {
-      id: 2,
-      title: 'Top 10 Logo Design Contest',
-      description: 'Đạt giải trong top 10 cuộc thi thiết kế logo câu lạc bộ',
-      date: '2025-01-11',
-      type: 'contest',
-      badge: '🏆'
-    },
-    {
-      id: 3,
-      title: 'Workshop AI Certificate',
-      description: 'Hoàn thành workshop AI và Machine Learning',
-      date: '2025-01-08',
-      type: 'workshop',
-      badge: '🤖'
-    }
-  ],
-  statistics: {
-    coursesCompleted: 3,
-    coursesInProgress: 2,
-    eventsAttended: 8,
-    tasksCompleted: 15,
-    totalPoints: 850,
-    rankInClub: 12
-  },
-  preferences: {
-    emailNotifications: true,
-    pushNotifications: true,
-    weeklyDigest: true,
-    eventReminders: true,
-    profileVisibility: 'public'
-  }
-};
+  CogIcon,
+  EnvelopeIcon,
+  MapPinIcon,
+  PencilIcon,
+  PhoneIcon,
+  TrophyIcon,
+  UserIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import AvatarUploadModal from "./AvatarUploadModal";
+import CoverImageUploadModal from "./CoverImageModal";
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [showAvatarModal, setShowAvatarModal] = useState(false);
-  const [userAvatar, setUserAvatar] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    name: userData.name,
-    bio: userData.bio,
-    phone: userData.phone,
-    location: userData.location,
-    github: userData.socialLinks.github,
-    linkedin: userData.socialLinks.linkedin,
-    facebook: userData.socialLinks.facebook
-  });
+  const [mounted, setMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
+  const {
+    updateUserProfile,
+    isLoading: updateLoading,
+    error: updateError,
+  } = useUpdateUserProfile();
+  const [showAvatarModal, setShowAvatarModal] = useState<boolean>(false);
+  const [showCoverImageModal, setShowCoverImageModal] =
+    useState<boolean>(false);
+  const tokenSub = useTokenSubject();
+  const { data, error, isLoading } = useUserProfile(tokenSub || undefined);
+  const [profileData, setProfileData] = useState<typeof data | null>(null);
+
+  const [formData, setFormData] = useState<Partial<UserProfileUpdateRequest>>(
+    {}
+  );
+
+  function resetForm(data: UserProfileResponse | null) {
+    setFormData({
+      full_name: data?.full_name,
+      introduction: data?.introduction,
+      phone: data?.phone,
+      location: data?.location,
+      social_link: {
+        ...data?.social_link,
+      },
+      avatar: data?.avatar,
+      cover_image: data?.cover_image,
+      class_name: data?.class_name,
+      email: data?.email,
+      khoa: data?.khoa,
+      msv: data?.msv,
+    });
+  }
+
+  useEffect(() => {
+    resetForm(data);
+    setProfileData(data);
+  }, [data]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleSave = () => {
-    // In a real app, this would save to database
-    console.log('Saving profile data:', formData);
-    setIsEditing(false);
+    if (!profileData) return;
+    updateUserProfile(formData)
+      .then(() => {
+        setProfileData({
+          ...profileData,
+          user_id: profileData.user_id,
+          full_name: formData.full_name ?? profileData.full_name,
+          introduction: formData.introduction ?? profileData.introduction,
+          phone: formData.phone ?? profileData.phone,
+          location: formData.location ?? profileData.location,
+          social_link: {
+            ...profileData.social_link,
+            ...formData.social_link,
+          },
+          avatar: formData.avatar ?? profileData.avatar,
+          cover_image: formData.cover_image ?? profileData.cover_image,
+          class_name: formData.class_name ?? profileData.class_name,
+          email: formData.email ?? profileData.email,
+          khoa: formData.khoa ?? profileData.khoa,
+          msv: formData.msv ?? profileData.msv,
+          created_at: profileData.created_at,
+          updated_at: profileData.updated_at,
+          completed_course: profileData.completed_course,
+          joined_event: profileData.joined_event,
+          completed_task: profileData.completed_task,
+        });
+      })
+      .finally(() => {
+        setIsEditing(false);
+      });
   };
 
   const handleCancel = () => {
-    setFormData({
-      name: userData.name,
-      bio: userData.bio,
-      phone: userData.phone,
-      location: userData.location,
-      github: userData.socialLinks.github,
-      linkedin: userData.socialLinks.linkedin,
-      facebook: userData.socialLinks.facebook
-    });
+    resetForm(profileData);
     setIsEditing(false);
   };
 
-  const handleAvatarSave = (avatarFile: File | null) => {
-    if (avatarFile) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setUserAvatar(e.target?.result as string);
-      };
-      reader.readAsDataURL(avatarFile);
-    }
+  const handleImageUpload = (
+    field: "avatar" | "cover_image",
+    imageURL: string
+  ) => {
+    handleInputChange(field, imageURL || "");
+    formData[field] = imageURL || "";
+    handleSave();
   };
 
   const tabs = [
-    { id: 'overview', label: 'Tổng quan', icon: UserIcon },
-    { id: 'achievements', label: 'Thành tích', icon: TrophyIcon, link: '/profile/achievements' },
-    { id: 'skills', label: 'Kỹ năng', icon: AcademicCapIcon },
-    { id: 'statistics', label: 'Thống kê', icon: ChartBarIcon },
-    { id: 'activity', label: 'Hoạt động', icon: ChartBarIcon, link: '/profile/activity' },
-    { id: 'settings', label: 'Cài đặt', icon: CogIcon, link: '/profile/settings' }
+    { id: "overview", label: "Tổng quan", icon: UserIcon },
+    // {
+    //   id: "achievements",
+    //   label: "Thành tích",
+    //   icon: TrophyIcon,
+    //   link: "/profile/achievements",
+    // },
+    // { id: "skills", label: "Kỹ năng", icon: AcademicCapIcon },
+    { id: "statistics", label: "Thống kê", icon: ChartBarIcon },
+    // {
+    //   id: "activity",
+    //   label: "Hoạt động",
+    //   icon: ChartBarIcon,
+    //   link: "/profile/activity",
+    // },
+    {
+      id: "settings",
+      label: "Cài đặt",
+      icon: CogIcon,
+      link: "/profile/settings",
+    },
   ];
+
+  if (!mounted) return null;
+  if (!tokenSub) {
+    return (
+      <div className="text-center mt-20 text-gray-500">
+        Vui lòng đăng nhập để xem hồ sơ.
+      </div>
+    );
+  }
+
+  if (isLoading || updateLoading) {
+    return (
+      <div className="animate-pulse text-center mt-20 text-gray-500">
+        Đang tải hồ sơ...
+      </div>
+    );
+  } else if (error || updateError) {
+    return (
+      <div className="text-center mt-20 text-red-500">
+        Lỗi khi tải hồ sơ: {error?.message || updateError?.message}
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -162,8 +182,19 @@ export default function ProfilePage() {
       <div className="relative mb-8">
         {/* Cover Image */}
         <div className="w-full h-48 md:h-64 bg-gradient-to-br from-[#267452] to-[#1f5e42] rounded-lg overflow-hidden relative">
-          <div className="absolute inset-0 bg-black bg-opacity-30"></div>
-          <button className="absolute top-4 right-4 bg-white bg-opacity-90 hover:bg-opacity-100 p-2 rounded-lg transition-all duration-200">
+          {profileData && profileData.cover_image ? (
+            <img
+              src={profileData.cover_image}
+              alt="Cover"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+          )}
+          <button
+            onClick={() => setShowCoverImageModal(true)}
+            className="absolute top-4 right-4 bg-white bg-opacity-90 hover:bg-opacity-100 p-2 rounded-lg transition-all duration-200"
+          >
             <CameraIcon className="w-5 h-5 text-gray-700" />
           </button>
         </div>
@@ -172,9 +203,9 @@ export default function ProfilePage() {
         <div className="absolute -bottom-16 left-8">
           <div className="relative">
             <div className="w-32 h-32 bg-gray-300 rounded-full border-4 border-white overflow-hidden">
-              {userAvatar ? (
+              {profileData && profileData.avatar ? (
                 <img
-                  src={userAvatar}
+                  src={profileData.avatar}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
@@ -234,29 +265,43 @@ export default function ProfilePage() {
                 {isEditing ? (
                   <input
                     type="text"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    value={formData.full_name}
+                    onChange={(e) =>
+                      handleInputChange("full_name", e.target.value)
+                    }
                     className="text-2xl font-bold text-gray-900 text-center w-full border-b border-gray-300 focus:border-[#267452] outline-none"
                   />
                 ) : (
-                  <h1 className="text-2xl font-bold text-gray-900">{userData.name}</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    {profileData?.full_name}
+                  </h1>
                 )}
-                <p className="text-gray-600 mt-1">{userData.studentId} • {userData.major}</p>
-                <p className="text-gray-500 text-sm">{userData.year}</p>
+                <p className="text-gray-600 mt-1">
+                  {profileData?.msv} • K{profileData?.khoa}
+                </p>
+                <p className="text-gray-500 text-sm">
+                  {profileData?.class_name}
+                </p>
               </div>
 
               {/* Bio */}
               <div className="mb-6">
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">Giới thiệu</h3>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                  Giới thiệu
+                </h3>
                 {isEditing ? (
                   <textarea
-                    value={formData.bio}
-                    onChange={(e) => handleInputChange('bio', e.target.value)}
+                    value={formData.introduction}
+                    onChange={(e) =>
+                      handleInputChange("introduction", e.target.value)
+                    }
                     rows={4}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#267452] focus:border-transparent outline-none text-sm"
                   />
                 ) : (
-                  <p className="text-gray-600 text-sm">{userData.bio}</p>
+                  <p className="text-gray-600 text-sm">
+                    {profileData?.introduction}
+                  </p>
                 )}
               </div>
 
@@ -264,7 +309,7 @@ export default function ProfilePage() {
               <div className="space-y-3">
                 <div className="flex items-center text-sm text-gray-600">
                   <EnvelopeIcon className="w-4 h-4 mr-3 text-[#267452]" />
-                  <span>{userData.email}</span>
+                  <span>{profileData?.email}</span>
                 </div>
                 <div className="flex items-center text-sm text-gray-600">
                   <PhoneIcon className="w-4 h-4 mr-3 text-[#267452]" />
@@ -272,11 +317,13 @@ export default function ProfilePage() {
                     <input
                       type="text"
                       value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("phone", e.target.value)
+                      }
                       className="flex-1 border-b border-gray-300 focus:border-[#267452] outline-none"
                     />
                   ) : (
-                    <span>{userData.phone}</span>
+                    <span>{profileData?.phone}</span>
                   )}
                 </div>
                 <div className="flex items-center text-sm text-gray-600">
@@ -285,41 +332,65 @@ export default function ProfilePage() {
                     <input
                       type="text"
                       value={formData.location}
-                      onChange={(e) => handleInputChange('location', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("location", e.target.value)
+                      }
                       className="flex-1 border-b border-gray-300 focus:border-[#267452] outline-none"
                     />
                   ) : (
-                    <span>{userData.location}</span>
+                    <span>{profileData?.location}</span>
                   )}
                 </div>
                 <div className="flex items-center text-sm text-gray-600">
                   <CalendarIcon className="w-4 h-4 mr-3 text-[#267452]" />
-                  <span>Tham gia từ {new Date(userData.joinDate).toLocaleDateString('vi-VN')}</span>
+                  <span>
+                    Tham gia từ{" "}
+                    {data &&
+                      new Date(data.created_at).toLocaleDateString("vi-VN")}
+                  </span>
                 </div>
               </div>
 
               {/* Social Links */}
               <div className="mt-6 pt-6 border-t border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">Liên kết xã hội</h3>
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                  Liên kết xã hội
+                </h3>
                 <div className="space-y-2">
-                  {['github', 'linkedin', 'facebook'].map((platform) => (
+                  {["github", "linkedin", "facebook"].map((platform) => (
                     <div key={platform} className="flex items-center text-sm">
-                      <span className="w-16 text-gray-600 capitalize">{platform}:</span>
+                      <span className="w-16 text-gray-600 capitalize">
+                        {platform}:
+                      </span>
                       {isEditing ? (
                         <input
                           type="url"
-                          value={formData[platform as keyof typeof formData]}
-                          onChange={(e) => handleInputChange(platform, e.target.value)}
+                          value={
+                            formData.social_link?.[
+                              platform as keyof typeof formData.social_link
+                            ]
+                          }
+                          onChange={(e) =>
+                            handleInputChange(platform, e.target.value)
+                          }
                           className="flex-1 ml-2 border-b border-gray-300 focus:border-[#267452] outline-none text-[#267452]"
                         />
                       ) : (
                         <a
-                          href={userData.socialLinks[platform as keyof typeof userData.socialLinks]}
+                          href={
+                            profileData?.social_link?.[
+                              platform as keyof typeof profileData.social_link
+                            ]
+                          }
                           target="_blank"
                           rel="noopener noreferrer"
                           className="ml-2 text-[#267452] hover:underline"
                         >
-                          {userData.socialLinks[platform as keyof typeof userData.socialLinks]}
+                          {
+                            profileData?.social_link?.[
+                              platform as keyof typeof profileData.social_link
+                            ]
+                          }
                         </a>
                       )}
                     </div>
@@ -353,10 +424,11 @@ export default function ProfilePage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center px-4 py-2 text-sm font-medium border-b-2 transition-colors duration-200 ${activeTab === tab.id
-                        ? 'border-[#267452] text-[#267452]'
-                        : 'border-transparent text-gray-600 hover:text-gray-900'
-                      }`}
+                    className={`flex items-center px-4 py-2 text-sm font-medium border-b-2 transition-colors duration-200 ${
+                      activeTab === tab.id
+                        ? "border-[#267452] text-[#267452]"
+                        : "border-transparent text-gray-600 hover:text-gray-900"
+                    }`}
                   >
                     <IconComponent className="w-4 h-4 mr-2" />
                     {tab.label}
@@ -368,36 +440,54 @@ export default function ProfilePage() {
             {/* Tab Content */}
             <div className="space-y-6">
               {/* Overview Tab */}
-              {activeTab === 'overview' && (
+              {activeTab === "overview" && (
                 <div className="space-y-6">
                   {/* Quick Stats */}
                   <div className="card">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">Thống kê nhanh</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">
+                      Thống kê nhanh
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       <div className="text-center">
-                        <p className="text-2xl font-bold text-[#267452]">{userData.statistics.coursesCompleted}</p>
-                        <p className="text-sm text-gray-600">Khóa học hoàn thành</p>
+                        <p className="text-2xl font-bold text-[#267452]">
+                          {profileData?.completed_course}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Khóa học hoàn thành
+                        </p>
                       </div>
                       <div className="text-center">
-                        <p className="text-2xl font-bold text-[#267452]">{userData.statistics.eventsAttended}</p>
-                        <p className="text-sm text-gray-600">Sự kiện tham gia</p>
+                        <p className="text-2xl font-bold text-[#267452]">
+                          {profileData?.joined_event}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Sự kiện tham gia
+                        </p>
                       </div>
                       <div className="text-center">
-                        <p className="text-2xl font-bold text-[#267452]">{userData.statistics.tasksCompleted}</p>
-                        <p className="text-sm text-gray-600">Nhiệm vụ hoàn thành</p>
+                        <p className="text-2xl font-bold text-[#267452]">
+                          {profileData?.completed_task}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Nhiệm vụ hoàn thành
+                        </p>
                       </div>
-                      <div className="text-center">
-                        <p className="text-2xl font-bold text-[#267452]">{userData.statistics.totalPoints}</p>
+                      {/* <div className="text-center">
+                        <p className="text-2xl font-bold text-[#267452]">
+                          {userData.statistics.totalPoints}
+                        </p>
                         <p className="text-sm text-gray-600">Tổng điểm</p>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
 
                   {/* Quick Links */}
                   <div className="card">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">Liên kết nhanh</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <Link
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">
+                      Liên kết nhanh
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                      {/* <Link
                         href="/profile/achievements"
                         className="flex items-center p-4 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg hover:shadow-md transition-all duration-200 group"
                       >
@@ -405,8 +495,12 @@ export default function ProfilePage() {
                           <TrophyIcon className="w-6 h-6 text-yellow-700" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-gray-900">Thành tích</h4>
-                          <p className="text-sm text-gray-600">Xem chi tiết thành tích và huy hiệu</p>
+                          <h4 className="font-semibold text-gray-900">
+                            Thành tích
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            Xem chi tiết thành tích và huy hiệu
+                          </p>
                         </div>
                       </Link>
 
@@ -418,10 +512,14 @@ export default function ProfilePage() {
                           <ChartBarIcon className="w-6 h-6 text-blue-700" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-gray-900">Hoạt động</h4>
-                          <p className="text-sm text-gray-600">Lịch sử hoạt động và tiến độ</p>
+                          <h4 className="font-semibold text-gray-900">
+                            Hoạt động
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            Lịch sử hoạt động và tiến độ
+                          </p>
                         </div>
-                      </Link>
+                      </Link> */}
 
                       <Link
                         href="/profile/settings"
@@ -431,71 +529,107 @@ export default function ProfilePage() {
                           <CogIcon className="w-6 h-6 text-gray-700" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-gray-900">Cài đặt</h4>
-                          <p className="text-sm text-gray-600">Quản lý tài khoản và tùy chọn</p>
+                          <h4 className="font-semibold text-gray-900">
+                            Cài đặt
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            Quản lý tài khoản và tùy chọn
+                          </p>
                         </div>
                       </Link>
                     </div>
                   </div>
 
                   {/* Recent Achievements */}
-                  <div className="card">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">Thành tích gần đây</h3>
+                  {/* <div className="card">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">
+                      Thành tích gần đây
+                    </h3>
                     <div className="space-y-3">
                       {userData.achievements.slice(0, 3).map((achievement) => (
-                        <div key={achievement.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div
+                          key={achievement.id}
+                          className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
+                        >
                           <span className="text-2xl">{achievement.badge}</span>
                           <div className="flex-1">
-                            <h4 className="font-semibold text-gray-900">{achievement.title}</h4>
-                            <p className="text-sm text-gray-600">{achievement.description}</p>
-                            <p className="text-xs text-gray-500">{new Date(achievement.date).toLocaleDateString('vi-VN')}</p>
+                            <h4 className="font-semibold text-gray-900">
+                              {achievement.title}
+                            </h4>
+                            <p className="text-sm text-gray-600">
+                              {achievement.description}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {new Date(achievement.date).toLocaleDateString(
+                                "vi-VN"
+                              )}
+                            </p>
                           </div>
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               )}
 
               {/* Achievements Tab */}
-              {activeTab === 'achievements' && (
+              {/* {activeTab === "achievements" && (
                 <div className="card">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Tất cả thành tích</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">
+                    Tất cả thành tích
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {userData.achievements.map((achievement) => (
-                      <div key={achievement.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                      <div
+                        key={achievement.id}
+                        className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+                      >
                         <div className="flex items-center space-x-3 mb-3">
                           <span className="text-3xl">{achievement.badge}</span>
                           <div>
-                            <h4 className="font-semibold text-gray-900">{achievement.title}</h4>
+                            <h4 className="font-semibold text-gray-900">
+                              {achievement.title}
+                            </h4>
                             <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
                               {achievement.type}
                             </span>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">{achievement.description}</p>
-                        <p className="text-xs text-gray-500">{new Date(achievement.date).toLocaleDateString('vi-VN')}</p>
+                        <p className="text-sm text-gray-600 mb-2">
+                          {achievement.description}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(achievement.date).toLocaleDateString(
+                            "vi-VN"
+                          )}
+                        </p>
                       </div>
                     ))}
                   </div>
                 </div>
-              )}
+              )} */}
 
               {/* Skills Tab */}
-              {activeTab === 'skills' && (
+              {activeTab === "skills" && (
                 <div className="card">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Kỹ năng</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">
+                    Kỹ năng
+                  </h3>
                   <div className="space-y-4">
-                    {userData.skills.map((skill, index) => (
+                    {/* {userData.skills.map((skill, index) => (
                       <div key={index}>
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center space-x-2">
-                            <span className="font-medium text-gray-900">{skill.name}</span>
+                            <span className="font-medium text-gray-900">
+                              {skill.name}
+                            </span>
                             <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
                               {skill.category}
                             </span>
                           </div>
-                          <span className="text-sm text-gray-600">{skill.level}%</span>
+                          <span className="text-sm text-gray-600">
+                            {skill.level}%
+                          </span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
@@ -504,102 +638,46 @@ export default function ProfilePage() {
                           ></div>
                         </div>
                       </div>
-                    ))}
+                    ))} */}
                   </div>
                 </div>
               )}
 
               {/* Statistics Tab */}
-              {activeTab === 'statistics' && (
+              {activeTab === "statistics" && (
                 <div className="space-y-6">
                   <div className="card">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">Thống kê chi tiết</h3>
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">
+                      Thống kê chi tiết
+                    </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="text-center p-4 bg-blue-50 rounded-lg">
                         <AcademicCapIcon className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                        <p className="text-2xl font-bold text-blue-600">{userData.statistics.coursesCompleted}</p>
-                        <p className="text-sm text-gray-600">Khóa học hoàn thành</p>
+                        <p className="text-2xl font-bold text-blue-600">
+                          {profileData?.completed_course}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Khóa học hoàn thành
+                        </p>
                       </div>
                       <div className="text-center p-4 bg-green-50 rounded-lg">
                         <TrophyIcon className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                        <p className="text-2xl font-bold text-green-600">#{userData.statistics.rankInClub}</p>
-                        <p className="text-sm text-gray-600">Xếp hạng trong CLB</p>
+                        <p className="text-2xl font-bold text-green-600">
+                          {profileData?.joined_event}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Số sự kiện tham gia
+                        </p>
                       </div>
                       <div className="text-center p-4 bg-yellow-50 rounded-lg">
                         <ChartBarIcon className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
-                        <p className="text-2xl font-bold text-yellow-600">{userData.gpa}</p>
-                        <p className="text-sm text-gray-600">GPA</p>
+                        <p className="text-2xl font-bold text-yellow-600">
+                          {profileData?.completed_task}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Nhiệm vụ đã hoàn thành
+                        </p>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Settings Tab */}
-              {activeTab === 'settings' && (
-                <div className="space-y-6">
-                  {/* Notification Settings */}
-                  <div className="card">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                      <BellIcon className="w-5 h-5 mr-2" />
-                      Cài đặt thông báo
-                    </h3>
-                    <div className="space-y-4">
-                      {Object.entries({
-                        emailNotifications: 'Thông báo qua email',
-                        pushNotifications: 'Thông báo đẩy',
-                        weeklyDigest: 'Bản tin tuần',
-                        eventReminders: 'Nhắc nhở sự kiện'
-                      }).map(([key, label]) => (
-                        <label key={key} className="flex items-center space-x-3 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={userData.preferences[key as keyof typeof userData.preferences] as boolean}
-                            className="w-4 h-4 text-[#267452] border-gray-300 rounded focus:ring-[#267452]"
-                          />
-                          <span className="text-gray-700">{label}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Privacy Settings */}
-                  <div className="card">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                      <EyeIcon className="w-5 h-5 mr-2" />
-                      Cài đặt riêng tư
-                    </h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Hiển thị hồ sơ
-                        </label>
-                        <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#267452] focus:border-transparent outline-none">
-                          <option value="public">Công khai</option>
-                          <option value="members">Chỉ thành viên CLB</option>
-                          <option value="private">Riêng tư</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Security Settings */}
-                  <div className="card">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                      <ShieldCheckIcon className="w-5 h-5 mr-2" />
-                      Bảo mật
-                    </h3>
-                    <div className="space-y-3">
-                      <button className="btn-secondary w-full flex items-center justify-center">
-                        <KeyIcon className="w-4 h-4 mr-2" />
-                        Đổi mật khẩu
-                      </button>
-                      <button className="btn-secondary w-full">
-                        Xem phiên đăng nhập
-                      </button>
-                      <button className="btn-secondary w-full">
-                        Xác thực 2 bước
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -613,8 +691,14 @@ export default function ProfilePage() {
       <AvatarUploadModal
         isOpen={showAvatarModal}
         onClose={() => setShowAvatarModal(false)}
-        currentAvatar={userAvatar || undefined}
-        onSave={handleAvatarSave}
+        currentAvatar={profileData?.avatar || undefined}
+        onSave={(imageURL) => handleImageUpload("avatar", imageURL || "")}
+      />
+      <CoverImageUploadModal
+        isOpen={showCoverImageModal}
+        onClose={() => setShowCoverImageModal(false)}
+        currentCoverImage={profileData?.cover_image || undefined}
+        onSave={(imageURL) => handleImageUpload("cover_image", imageURL || "")}
       />
     </div>
   );
