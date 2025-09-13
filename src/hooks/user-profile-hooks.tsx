@@ -1,7 +1,8 @@
 import { userProfileService } from "@/services/user-profile-service";
-import { HookTemplate } from "@/types/hook-template";
+import { HookCallback, HookTemplate } from "@/types/hook-template";
 import { ResponseTemplate } from "@/types/response-template";
 import {
+  CreateUserProfileRequest,
   UserProfileResponse,
   UserProfileUpdateRequest,
   UserProfileUpdateResponse,
@@ -32,7 +33,9 @@ export default function useUserProfile(
         const axiosError = error as AxiosError<ResponseTemplate<null>>;
         setProfile({
           isLoading: false,
-          error: new Error(axiosError.response?.data.message || "Failed to fetch profile"),
+          error: new Error(
+            axiosError.response?.data.message || "Failed to fetch profile"
+          ),
           data: null,
         });
       }
@@ -79,11 +82,36 @@ export function useUpdateUserProfile(): HookTemplate<UserProfileUpdateResponse> 
       const axiosError = error as AxiosError<ResponseTemplate<null>>;
       setUpdateProfile({
         isLoading: false,
-        error: new Error(axiosError.response?.data.message || "Failed to update profile"),
+        error: new Error(
+          axiosError.response?.data.message || "Failed to update profile"
+        ),
         data: null,
       });
     }
   }
 
   return { updateUserProfile, ...updateProfile };
+}
+
+export function useCreateUserProfile(): HookCallback<CreateUserProfileRequest> {
+  const [isLoading, setisLoading] = useState(false);
+
+  async function createUserProfile(profileData: CreateUserProfileRequest) {
+    setisLoading(true);
+    try {
+      const response = await userProfileService.createUserProfile(profileData);
+      if (response.status !== "success") {
+        throw new Error(response.message || "Failed to create profile");
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError<ResponseTemplate<null>>;
+      throw new Error(
+        axiosError.response?.data.message || "Failed to create profile"
+      );
+    } finally {
+      setisLoading(false);
+    }
+  }
+
+  return { func: createUserProfile, isLoading };
 }

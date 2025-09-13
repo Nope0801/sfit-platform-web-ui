@@ -1,7 +1,9 @@
 "use client";
 
 import { useRegister } from "@/hooks/auth-hook";
+import { useCreateUserProfile } from "@/hooks/user-profile-hooks";
 import { RegisterRequest } from "@/types/auth";
+import { CreateUserProfileRequest } from "@/types/user-profile";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -15,26 +17,38 @@ export default function RegisterPage() {
     email: "",
     password: "",
   });
+  const { func: createUserProfile, isLoading: isCreating } =
+    useCreateUserProfile();
+  const [formUserProfile, setFormUserProfile] = useState<
+    Partial<CreateUserProfileRequest>
+  >({});
 
   function handleChange(field: keyof RegisterRequest, value: string) {
     setFormData((prev) => ({ ...prev, [field]: value }));
   }
 
+  function handleChangeUserProfile(
+    field: keyof CreateUserProfileRequest,
+    value: string
+  ) {
+    setFormUserProfile((prev) => ({ ...prev, [field]: value }));
+  }
+
   function handleSubmit() {
     func(formData)
       .then(() => {
-        router.push("/");
+        createUserProfile(formUserProfile as CreateUserProfileRequest)
+          .then(() => {
+            router.push("/");
+          })
+          .catch((err) => {
+            setError(err);
+          });
       })
       .catch((err) => {
         setError(err);
       });
   }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSubmit(); // Gọi submit khi ấn Enter
-    }
-  };
 
   return (
     <div className="flex flex-col space-y-4">
@@ -43,11 +57,35 @@ export default function RegisterPage() {
       </div>
       <input
         type="text"
+        value={formUserProfile.full_name || ""}
+        className="border border-gray-300 rounded-md p-2"
+        placeholder="Full Name"
+        onChange={(e) => handleChangeUserProfile("full_name", e.target.value)}
+      />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <input
+          type="text"
+          value={formUserProfile.class_name || ""}
+          className="col-span-2 border border-gray-300 rounded-md p-2"
+          placeholder="Tên lớp"
+          onChange={(e) =>
+            handleChangeUserProfile("class_name", e.target.value)
+          }
+        />
+        <input
+          type="text"
+          value={formUserProfile.khoa || ""}
+          className="border border-gray-300 rounded-md p-2"
+          placeholder="Khóa"
+          onChange={(e) => handleChangeUserProfile("khoa", e.target.value)}
+        />
+      </div>
+      <input
+        type="text"
         value={formData.username || ""}
         className="border border-gray-300 rounded-md p-2"
         placeholder="Username"
         onChange={(e) => handleChange("username", e.target.value)}
-        onKeyDown={handleKeyDown}
       />
       <input
         type="email"
@@ -55,7 +93,6 @@ export default function RegisterPage() {
         className="border border-gray-300 rounded-md p-2"
         placeholder="Email"
         onChange={(e) => handleChange("email", e.target.value)}
-        onKeyDown={handleKeyDown}
       />
       <input
         type="password"
@@ -63,10 +100,9 @@ export default function RegisterPage() {
         className="border border-gray-300 rounded-md p-2"
         placeholder="Mật khẩu"
         onChange={(e) => handleChange("password", e.target.value)}
-        onKeyDown={handleKeyDown}
       />
       <div className="flex items-center justify-center w-full">
-        {isLoading ? (
+        {isLoading && isCreating ? (
           <div className="bg-[#1f5e42] text-white text-center rounded-md p-2 w-full cursor-not-allowed">
             Đang xử lý ...
           </div>

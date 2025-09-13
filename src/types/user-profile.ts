@@ -41,3 +41,22 @@ export interface UserProfileUpdateResponse {
     createAt: string;
     updateAt: string;
 }
+
+export interface CreateUserProfileRequest {
+    user_id: string;
+    full_name: string;
+    class_name: string;
+    khoa: string;
+    phone: string;
+    introduction: string;
+    email: string;
+    social_link: SocialLink;
+    location: string;
+    msv: string;
+    avatar: string;
+    cover_image: string;
+}
+export interface CreateUserProfileResponse {
+    createAt: string;
+    updateAt: string;
+}

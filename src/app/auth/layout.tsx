@@ -10,7 +10,7 @@ export default function AuthLayout({
     <div className="min-h-screen flex flex-col">
       <Header />
       <div className="flex flex-1 items-center justify-center bg-gray-100">
-        <div className="shadow-md border border-gray-300 rounded-xl p-8 w-sm">
+        <div className="shadow-md border border-gray-300 rounded-xl p-8 w-md">
           <div className="mb-4 flex justify-center">
             <Logo />
           </div>

@@ -46,6 +46,22 @@ class UserProfileService {
       data: response.data.data,
     };
   }
+
+  // create user profile
+  async createUserProfile(
+    profileData: Partial<UserProfileUpdateRequest>
+  ): Promise<ResponseTemplate<UserProfileUpdateResponse | null>> {
+    const response = await apiClient.post<ResponseTemplate<UserProfileUpdateResponse>>(
+      `/user-profiles`,
+      profileData
+    );
+
+    return {
+      status: response.data.status,
+      message: response.data.message,
+      data: response.data.data,
+    };
+  }
 }
 
 export const userProfileService = new UserProfileService();
