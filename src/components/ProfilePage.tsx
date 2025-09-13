@@ -27,6 +27,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import AvatarUploadModal from "./AvatarUploadModal";
 import CoverImageUploadModal from "./CoverImageModal";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
@@ -43,6 +44,7 @@ export default function ProfilePage() {
   const tokenSub = useTokenSubject();
   const { data, error, isLoading } = useUserProfile(tokenSub || undefined);
   const [profileData, setProfileData] = useState<typeof data | null>(null);
+  const router = useRouter();
 
   const [formData, setFormData] = useState<Partial<UserProfileUpdateRequest>>(
     {}
@@ -163,11 +165,17 @@ export default function ProfilePage() {
     },
   ];
 
+  useEffect(() => {
+    if (mounted && (!tokenSub || error)) {
+      router.push("/auth/login");
+    }
+  }, [mounted, tokenSub, error, router]);
+
   if (!mounted) return null;
-  if (!tokenSub) {
+  if (error || !tokenSub) {
     return (
       <div className="text-center mt-20 text-gray-500">
-        Vui lòng đăng nhập để xem hồ sơ.
+        Đang chuyển hướng đến trang đăng nhập...
       </div>
     );
   }
@@ -178,10 +186,10 @@ export default function ProfilePage() {
         Đang tải hồ sơ...
       </div>
     );
-  } else if (error || updateError) {
+  } else if (updateError) {
     return (
       <div className="text-center mt-20 text-red-500">
-        Lỗi khi tải hồ sơ: {error?.message || updateError?.message}
+        Lỗi khi tải hồ sơ: {updateError?.message}
       </div>
     );
   }

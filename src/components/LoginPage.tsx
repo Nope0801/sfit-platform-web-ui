@@ -28,6 +28,12 @@ export default function LoginPage() {
       });
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSubmit(); // Gọi submit khi ấn Enter
+    }
+  };
+
   return (
     <div className="flex flex-col space-y-4">
       <div className="text-xl text-center text-gray-600 space-x-8 mb-8">
@@ -42,6 +48,7 @@ export default function LoginPage() {
           handleChange("username", e.target.value);
           handleChange("email", e.target.value);
         }}
+        onKeyDown={handleKeyDown}
       />
       <input
         type="password"
@@ -49,6 +56,7 @@ export default function LoginPage() {
         className="border border-gray-300 rounded-md p-2"
         placeholder="Mật khẩu"
         onChange={(e) => handleChange("password", e.target.value)}
+        onKeyDown={handleKeyDown}
       />
       <div className="flex items-center justify-end space-x-4">
         <Link
