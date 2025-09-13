@@ -1,19 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import {
+  AcademicCapIcon,
+  Bars3Icon,
+  BellIcon,
+  CalendarIcon,
+  ClipboardDocumentListIcon,
   HomeIcon,
   NewspaperIcon,
-  AcademicCapIcon,
-  CalendarIcon,
-  BellIcon,
-  ClipboardDocumentListIcon,
   UserIcon,
-  Bars3Icon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import Logo from './Logo';
 
 const navigation = [
   { name: 'Trang chủ', href: '/', icon: HomeIcon },
@@ -39,12 +40,7 @@ export default function Header() {
         <div className="flex h-16 justify-between items-center">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-[#267452] rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">SF</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">SFIT Club</span>
-            </Link>
+            <Logo />
           </div>
 
           {/* Desktop Navigation */}

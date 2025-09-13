@@ -1,10 +1,12 @@
 import { userProfileService } from "@/services/user-profile-service";
 import { HookTemplate } from "@/types/hook-template";
+import { ResponseTemplate } from "@/types/response-template";
 import {
   UserProfileResponse,
   UserProfileUpdateRequest,
   UserProfileUpdateResponse,
 } from "@/types/user-profile";
+import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 
 // get user profile by userId
@@ -27,9 +29,10 @@ export default function useUserProfile(
           data: response.data,
         });
       } catch (error) {
+        const axiosError = error as AxiosError<ResponseTemplate<null>>;
         setProfile({
           isLoading: false,
-          error: error as Error,
+          error: new Error(axiosError.response?.data.message || "Failed to fetch profile"),
           data: null,
         });
       }
@@ -73,9 +76,10 @@ export function useUpdateUserProfile(): HookTemplate<UserProfileUpdateResponse> 
         data: response.data,
       });
     } catch (error) {
+      const axiosError = error as AxiosError<ResponseTemplate<null>>;
       setUpdateProfile({
         isLoading: false,
-        error: error as Error,
+        error: new Error(axiosError.response?.data.message || "Failed to update profile"),
         data: null,
       });
     }

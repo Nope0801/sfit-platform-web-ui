@@ -3,3 +3,8 @@ export interface HookTemplate<T> {
   error: Error | null;
   data: T | null;
 }
+
+export interface HookCallback<T> {
+  func: (data: T) => Promise<void>;
+  isLoading: boolean;
+}

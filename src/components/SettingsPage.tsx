@@ -2,14 +2,13 @@
 
 import {
   BellIcon,
-  CogIcon,
   ComputerDesktopIcon,
   DevicePhoneMobileIcon,
   EyeIcon,
   MoonIcon,
   PaintBrushIcon,
   ShieldCheckIcon,
-  SunIcon,
+  SunIcon
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useState } from "react";
