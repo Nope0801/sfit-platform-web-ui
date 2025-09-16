@@ -1,9 +1,7 @@
 "use client";
 
 import { useRegister } from "@/hooks/auth-hook";
-import { useCreateUserProfile } from "@/hooks/user-profile-hooks";
 import { RegisterRequest } from "@/types/auth";
-import { CreateUserProfileRequest } from "@/types/user-profile";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -16,34 +14,21 @@ export default function RegisterPage() {
     username: "",
     email: "",
     password: "",
+    class_name: "",
+    full_name: "",
+    khoa: "",
+    msv: "",
+    phone: "",
   });
-  const { func: createUserProfile, isLoading: isCreating } =
-    useCreateUserProfile();
-  const [formUserProfile, setFormUserProfile] = useState<
-    Partial<CreateUserProfileRequest>
-  >({});
 
   function handleChange(field: keyof RegisterRequest, value: string) {
     setFormData((prev) => ({ ...prev, [field]: value }));
   }
 
-  function handleChangeUserProfile(
-    field: keyof CreateUserProfileRequest,
-    value: string
-  ) {
-    setFormUserProfile((prev) => ({ ...prev, [field]: value }));
-  }
-
   function handleSubmit() {
     func(formData)
       .then(() => {
-        createUserProfile(formUserProfile as CreateUserProfileRequest)
-          .then(() => {
-            router.push("/");
-          })
-          .catch((err) => {
-            setError(err);
-          });
+        router.push("/");
       })
       .catch((err) => {
         setError(err);
@@ -57,27 +42,41 @@ export default function RegisterPage() {
       </div>
       <input
         type="text"
-        value={formUserProfile.full_name || ""}
+        value={formData.full_name || ""}
         className="border border-gray-300 rounded-md p-2"
         placeholder="Full Name"
-        onChange={(e) => handleChangeUserProfile("full_name", e.target.value)}
+        onChange={(e) => handleChange("full_name", e.target.value)}
       />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <input
           type="text"
-          value={formUserProfile.class_name || ""}
-          className="col-span-2 border border-gray-300 rounded-md p-2"
+          value={formData.class_name || ""}
+          className="md:col-span-2 border border-gray-300 rounded-md p-2"
           placeholder="Tên lớp"
-          onChange={(e) =>
-            handleChangeUserProfile("class_name", e.target.value)
-          }
+          onChange={(e) => handleChange("class_name", e.target.value)}
         />
         <input
           type="text"
-          value={formUserProfile.khoa || ""}
+          value={formData.khoa || ""}
           className="border border-gray-300 rounded-md p-2"
           placeholder="Khóa"
-          onChange={(e) => handleChangeUserProfile("khoa", e.target.value)}
+          onChange={(e) => handleChange("khoa", e.target.value)}
+        />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <input
+          type="text"
+          value={formData.phone || ""}
+          className="md:col-span-2 border border-gray-300 rounded-md p-2"
+          placeholder="Điện thoại"
+          onChange={(e) => handleChange("phone", e.target.value)}
+        />
+        <input
+          type="text"
+          value={formData.msv || ""}
+          className="border border-gray-300 rounded-md p-2"
+          placeholder="Mã sinh viên"
+          onChange={(e) => handleChange("msv", e.target.value)}
         />
       </div>
       <input
@@ -102,7 +101,7 @@ export default function RegisterPage() {
         onChange={(e) => handleChange("password", e.target.value)}
       />
       <div className="flex items-center justify-center w-full">
-        {isLoading && isCreating ? (
+        {isLoading ? (
           <div className="bg-[#1f5e42] text-white text-center rounded-md p-2 w-full cursor-not-allowed">
             Đang xử lý ...
           </div>

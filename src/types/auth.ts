@@ -5,7 +5,12 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
-  email: string;
+  full_name: string;
+  class_name: string;
   username: string;
+  khoa: string;
+  email: string;
   password: string;
+  phone: string;
+  msv: string;
 }
