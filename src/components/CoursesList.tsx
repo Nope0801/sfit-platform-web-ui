@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   AcademicCapIcon,
@@ -13,182 +13,184 @@ import {
   CheckCircleIcon,
   FunnelIcon
 } from '@heroicons/react/24/outline';
-
+import { useCourseService } from '@/hooks/use-course-hooks';
+import { Course, CourseQuery } from '@/types/course';
+import { PageListResp } from '@/types/pagination';
 // Sample courses data
-const courses = [
-  {
-    id: 1,
-    title: 'React.js từ cơ bản đến nâng cao',
-    description: 'Khóa học toàn diện về React.js, từ những khái niệm cơ bản đến các kỹ thuật nâng cao như Redux, Context API, và Performance Optimization.',
-    instructor: 'Thầy Nguyễn Văn A',
-    instructorAvatar: '/api/placeholder/50/50',
-    duration: '8 tuần',
-    totalLessons: 20,
-    level: 'Trung cấp',
-    category: 'Frontend',
-    price: 'Miễn phí',
-    rating: 4.8,
-    studentsCount: 156,
-    image: '/api/placeholder/400/250',
-    progress: 75,
-    isEnrolled: true,
-    completedLessons: 15,
-    tags: ['React', 'JavaScript', 'Frontend', 'Web Development'],
-    syllabus: [
-      'Giới thiệu về React và JSX',
-      'Components và Props',
-      'State và Lifecycle',
-      'Handling Events',
-      'Hooks (useState, useEffect)',
-      'Context API',
-      'Redux và Redux Toolkit',
-      'Performance Optimization'
-    ]
-  },
-  {
-    id: 2,
-    title: 'Python cho Data Science',
-    description: 'Học cách sử dụng Python để phân tích dữ liệu, xây dựng machine learning models và visualization với các thư viện như Pandas, NumPy, Matplotlib.',
-    instructor: 'Cô Trần Thị B',
-    instructorAvatar: '/api/placeholder/50/50',
-    duration: '10 tuần',
-    totalLessons: 25,
-    level: 'Cơ bản',
-    category: 'Data Science',
-    price: 'Miễn phí',
-    rating: 4.6,
-    studentsCount: 89,
-    image: '/api/placeholder/400/250',
-    progress: 45,
-    isEnrolled: true,
-    completedLessons: 11,
-    tags: ['Python', 'Data Science', 'Machine Learning', 'Analytics'],
-    syllabus: [
-      'Python cơ bản cho Data Science',
-      'NumPy và array operations',
-      'Pandas và data manipulation',
-      'Data visualization với Matplotlib',
-      'Seaborn cho statistical plots',
-      'Machine Learning với Scikit-learn',
-      'Data cleaning và preprocessing',
-      'Final project: End-to-end analysis'
-    ]
-  },
-  {
-    id: 3,
-    title: 'DevOps và Cloud Computing',
-    description: 'Tìm hiểu về DevOps practices, CI/CD pipelines, containerization với Docker, và deployment trên AWS/Azure cloud platforms.',
-    instructor: 'Thầy Lê Văn C',
-    instructorAvatar: '/api/placeholder/50/50',
-    duration: '12 tuần',
-    totalLessons: 30,
-    level: 'Nâng cao',
-    category: 'DevOps',
-    price: 'Miễn phí',
-    rating: 4.9,
-    studentsCount: 67,
-    image: '/api/placeholder/400/250',
-    progress: 20,
-    isEnrolled: true,
-    completedLessons: 6,
-    tags: ['DevOps', 'Docker', 'AWS', 'CI/CD', 'Cloud'],
-    syllabus: [
-      'Introduction to DevOps',
-      'Version Control với Git',
-      'Docker fundamentals',
-      'Kubernetes basics',
-      'CI/CD với Jenkins',
-      'AWS services overview',
-      'Infrastructure as Code',
-      'Monitoring và Logging'
-    ]
-  },
-  {
-    id: 4,
-    title: 'Mobile App Development với Flutter',
-    description: 'Xây dựng ứng dụng mobile cross-platform với Flutter và Dart. Học cách tạo UI đẹp và tích hợp các API.',
-    instructor: 'Thầy Phạm Văn D',
-    instructorAvatar: '/api/placeholder/50/50',
-    duration: '6 tuần',
-    totalLessons: 18,
-    level: 'Trung cấp',
-    category: 'Mobile',
-    price: 'Miễn phí',
-    rating: 4.7,
-    studentsCount: 124,
-    image: '/api/placeholder/400/250',
-    progress: 0,
-    isEnrolled: false,
-    completedLessons: 0,
-    tags: ['Flutter', 'Dart', 'Mobile', 'Cross-platform'],
-    syllabus: [
-      'Dart programming basics',
-      'Flutter widgets và layouts',
-      'Navigation và routing',
-      'State management',
-      'API integration',
-      'Local storage',
-      'Publishing to app stores'
-    ]
-  },
-  {
-    id: 5,
-    title: 'UI/UX Design cơ bản',
-    description: 'Học các nguyên tắc thiết kế UI/UX, sử dụng Figma để tạo mockups và prototypes chuyên nghiệp.',
-    instructor: 'Cô Nguyễn Thị E',
-    instructorAvatar: '/api/placeholder/50/50',
-    duration: '5 tuần',
-    totalLessons: 15,
-    level: 'Cơ bản',
-    category: 'Design',
-    price: 'Miễn phí',
-    rating: 4.5,
-    studentsCount: 203,
-    image: '/api/placeholder/400/250',
-    progress: 0,
-    isEnrolled: false,
-    completedLessons: 0,
-    tags: ['UI', 'UX', 'Design', 'Figma'],
-    syllabus: [
-      'Design thinking process',
-      'Color theory và typography',
-      'Wireframing techniques',
-      'Prototyping với Figma',
-      'User research methods',
-      'Usability testing',
-      'Design system creation'
-    ]
-  },
-  {
-    id: 6,
-    title: 'Blockchain và Smart Contracts',
-    description: 'Tìm hiểu về công nghệ blockchain, cách viết smart contracts với Solidity và phát triển DApps.',
-    instructor: 'Thầy Hoàng Văn F',
-    instructorAvatar: '/api/placeholder/50/50',
-    duration: '8 tuần',
-    totalLessons: 22,
-    level: 'Nâng cao',
-    category: 'Blockchain',
-    price: 'Miễn phí',
-    rating: 4.4,
-    studentsCount: 45,
-    image: '/api/placeholder/400/250',
-    progress: 0,
-    isEnrolled: false,
-    completedLessons: 0,
-    tags: ['Blockchain', 'Smart Contracts', 'Solidity', 'Web3'],
-    syllabus: [
-      'Blockchain fundamentals',
-      'Ethereum và smart contracts',
-      'Solidity programming',
-      'Web3.js integration',
-      'DApp development',
-      'NFT creation',
-      'DeFi protocols',
-      'Security best practices'
-    ]
-  }
-];
+// const courses = [
+//   {
+//     id: 1,
+//     title: 'React.js từ cơ bản đến nâng cao',
+//     description: 'Khóa học toàn diện về React.js, từ những khái niệm cơ bản đến các kỹ thuật nâng cao như Redux, Context API, và Performance Optimization.',
+//     instructor: 'Thầy Nguyễn Văn A',
+//     instructorAvatar: '/api/placeholder/50/50',
+//     duration: '8 tuần',
+//     totalLessons: 20,
+//     level: 'Trung cấp',
+//     category: 'Frontend',
+//     price: 'Miễn phí',
+//     rating: 4.8,
+//     studentsCount: 156,
+//     image: '/api/placeholder/400/250',
+//     progress: 75,
+//     isEnrolled: true,
+//     completedLessons: 15,
+//     tags: ['React', 'JavaScript', 'Frontend', 'Web Development'],
+//     syllabus: [
+//       'Giới thiệu về React và JSX',
+//       'Components và Props',
+//       'State và Lifecycle',
+//       'Handling Events',
+//       'Hooks (useState, useEffect)',
+//       'Context API',
+//       'Redux và Redux Toolkit',
+//       'Performance Optimization'
+//     ]
+//   },
+//   {
+//     id: 2,
+//     title: 'Python cho Data Science',
+//     description: 'Học cách sử dụng Python để phân tích dữ liệu, xây dựng machine learning models và visualization với các thư viện như Pandas, NumPy, Matplotlib.',
+//     instructor: 'Cô Trần Thị B',
+//     instructorAvatar: '/api/placeholder/50/50',
+//     duration: '10 tuần',
+//     totalLessons: 25,
+//     level: 'Cơ bản',
+//     category: 'Data Science',
+//     price: 'Miễn phí',
+//     rating: 4.6,
+//     studentsCount: 89,
+//     image: '/api/placeholder/400/250',
+//     progress: 45,
+//     isEnrolled: true,
+//     completedLessons: 11,
+//     tags: ['Python', 'Data Science', 'Machine Learning', 'Analytics'],
+//     syllabus: [
+//       'Python cơ bản cho Data Science',
+//       'NumPy và array operations',
+//       'Pandas và data manipulation',
+//       'Data visualization với Matplotlib',
+//       'Seaborn cho statistical plots',
+//       'Machine Learning với Scikit-learn',
+//       'Data cleaning và preprocessing',
+//       'Final project: End-to-end analysis'
+//     ]
+//   },
+//   {
+//     id: 3,
+//     title: 'DevOps và Cloud Computing',
+//     description: 'Tìm hiểu về DevOps practices, CI/CD pipelines, containerization với Docker, và deployment trên AWS/Azure cloud platforms.',
+//     instructor: 'Thầy Lê Văn C',
+//     instructorAvatar: '/api/placeholder/50/50',
+//     duration: '12 tuần',
+//     totalLessons: 30,
+//     level: 'Nâng cao',
+//     category: 'DevOps',
+//     price: 'Miễn phí',
+//     rating: 4.9,
+//     studentsCount: 67,
+//     image: '/api/placeholder/400/250',
+//     progress: 20,
+//     isEnrolled: true,
+//     completedLessons: 6,
+//     tags: ['DevOps', 'Docker', 'AWS', 'CI/CD', 'Cloud'],
+//     syllabus: [
+//       'Introduction to DevOps',
+//       'Version Control với Git',
+//       'Docker fundamentals',
+//       'Kubernetes basics',
+//       'CI/CD với Jenkins',
+//       'AWS services overview',
+//       'Infrastructure as Code',
+//       'Monitoring và Logging'
+//     ]
+//   },
+//   {
+//     id: 4,
+//     title: 'Mobile App Development với Flutter',
+//     description: 'Xây dựng ứng dụng mobile cross-platform với Flutter và Dart. Học cách tạo UI đẹp và tích hợp các API.',
+//     instructor: 'Thầy Phạm Văn D',
+//     instructorAvatar: '/api/placeholder/50/50',
+//     duration: '6 tuần',
+//     totalLessons: 18,
+//     level: 'Trung cấp',
+//     category: 'Mobile',
+//     price: 'Miễn phí',
+//     rating: 4.7,
+//     studentsCount: 124,
+//     image: '/api/placeholder/400/250',
+//     progress: 0,
+//     isEnrolled: false,
+//     completedLessons: 0,
+//     tags: ['Flutter', 'Dart', 'Mobile', 'Cross-platform'],
+//     syllabus: [
+//       'Dart programming basics',
+//       'Flutter widgets và layouts',
+//       'Navigation và routing',
+//       'State management',
+//       'API integration',
+//       'Local storage',
+//       'Publishing to app stores'
+//     ]
+//   },
+//   {
+//     id: 5,
+//     title: 'UI/UX Design cơ bản',
+//     description: 'Học các nguyên tắc thiết kế UI/UX, sử dụng Figma để tạo mockups và prototypes chuyên nghiệp.',
+//     instructor: 'Cô Nguyễn Thị E',
+//     instructorAvatar: '/api/placeholder/50/50',
+//     duration: '5 tuần',
+//     totalLessons: 15,
+//     level: 'Cơ bản',
+//     category: 'Design',
+//     price: 'Miễn phí',
+//     rating: 4.5,
+//     studentsCount: 203,
+//     image: '/api/placeholder/400/250',
+//     progress: 0,
+//     isEnrolled: false,
+//     completedLessons: 0,
+//     tags: ['UI', 'UX', 'Design', 'Figma'],
+//     syllabus: [
+//       'Design thinking process',
+//       'Color theory và typography',
+//       'Wireframing techniques',
+//       'Prototyping với Figma',
+//       'User research methods',
+//       'Usability testing',
+//       'Design system creation'
+//     ]
+//   },
+//   {
+//     id: 6,
+//     title: 'Blockchain và Smart Contracts',
+//     description: 'Tìm hiểu về công nghệ blockchain, cách viết smart contracts với Solidity và phát triển DApps.',
+//     instructor: 'Thầy Hoàng Văn F',
+//     instructorAvatar: '/api/placeholder/50/50',
+//     duration: '8 tuần',
+//     totalLessons: 22,
+//     level: 'Nâng cao',
+//     category: 'Blockchain',
+//     price: 'Miễn phí',
+//     rating: 4.4,
+//     studentsCount: 45,
+//     image: '/api/placeholder/400/250',
+//     progress: 0,
+//     isEnrolled: false,
+//     completedLessons: 0,
+//     tags: ['Blockchain', 'Smart Contracts', 'Solidity', 'Web3'],
+//     syllabus: [
+//       'Blockchain fundamentals',
+//       'Ethereum và smart contracts',
+//       'Solidity programming',
+//       'Web3.js integration',
+//       'DApp development',
+//       'NFT creation',
+//       'DeFi protocols',
+//       'Security best practices'
+//     ]
+//   }
+// ];
 
 const categories = ['Tất cả', 'Frontend', 'Data Science', 'DevOps', 'Mobile', 'Design', 'Blockchain'];
 const levels = ['Tất cả', 'Cơ bản', 'Trung cấp', 'Nâng cao'];
@@ -198,37 +200,62 @@ export default function CoursesList() {
   const [selectedCategory, setSelectedCategory] = useState('Tất cả');
   const [selectedLevel, setSelectedLevel] = useState('Tất cả');
   const [showEnrolledOnly, setShowEnrolledOnly] = useState(false);
-  const [filteredCourses, setFilteredCourses] = useState(courses);
+  const [classesPerPage] = useState(6);
+  const { getListCourse, courses, loading } = useCourseService()
+  const [totalItems, setTotalItems] = useState(0);
+  const [pageData, setPageData] = useState<Course[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  // const handleFilter = () => {
+  //   let filtered = courses;
 
-  const handleFilter = () => {
-    let filtered = courses;
+  //   if (selectedCategory !== 'Tất cả') {
+  //     filtered = filtered.filter(course => course.category === selectedCategory);
+  //   }
 
-    if (selectedCategory !== 'Tất cả') {
-      filtered = filtered.filter(course => course.category === selectedCategory);
+  //   if (selectedLevel !== 'Tất cả') {
+  //     filtered = filtered.filter(course => course.level === selectedLevel);
+  //   }
+
+  //   if (showEnrolledOnly) {
+  //     filtered = filtered.filter(course => course.isEnrolled);
+  //   }
+
+  //   if (searchTerm) {
+  //     filtered = filtered.filter(course =>
+  //       course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       course.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       course.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+  //     );
+  //   }
+
+  //   setFilteredCourses(filtered);
+  // };
+
+  // useState(() => {
+  //   handleFilter();
+  // });
+  const fetchCourses = useCallback(async () => {
+    const resp: PageListResp<Course[]> | undefined = await getListCourse({
+      title: searchTerm || undefined,
+      type: selectedCategory !== 'Tất cả' ? selectedCategory : undefined,
+      level: selectedLevel !== 'Tất cả' ? (selectedLevel as any) : undefined,
+      only_registed: showEnrolledOnly || undefined,
+      page: currentPage,
+      page_size: classesPerPage,
+    });
+
+    if (resp) {
+      setPageData(resp.items);
+      setTotalItems(resp.total_count);
+    } else {
+      setPageData([]);
+      setTotalItems(0);
     }
+  }, [searchTerm, selectedCategory, selectedLevel, showEnrolledOnly, currentPage, classesPerPage, getListCourse]);
 
-    if (selectedLevel !== 'Tất cả') {
-      filtered = filtered.filter(course => course.level === selectedLevel);
-    }
-
-    if (showEnrolledOnly) {
-      filtered = filtered.filter(course => course.isEnrolled);
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter(course =>
-        course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-
-    setFilteredCourses(filtered);
-  };
-
-  useState(() => {
-    handleFilter();
-  });
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -253,7 +280,7 @@ export default function CoursesList() {
             placeholder="Tìm kiếm khóa học..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyUp={handleFilter}
+            // onKeyUp={handleFilter}
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#267452] focus:border-transparent outline-none"
           />
         </div>
@@ -270,7 +297,7 @@ export default function CoursesList() {
             value={selectedCategory}
             onChange={(e) => {
               setSelectedCategory(e.target.value);
-              setTimeout(handleFilter, 0);
+              // setTimeout(handleFilter, 0);
             }}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#267452] focus:border-transparent outline-none"
           >
@@ -284,7 +311,7 @@ export default function CoursesList() {
             value={selectedLevel}
             onChange={(e) => {
               setSelectedLevel(e.target.value);
-              setTimeout(handleFilter, 0);
+              // setTimeout(handleFilter, 0);
             }}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#267452] focus:border-transparent outline-none"
           >
@@ -300,7 +327,7 @@ export default function CoursesList() {
               checked={showEnrolledOnly}
               onChange={(e) => {
                 setShowEnrolledOnly(e.target.checked);
-                setTimeout(handleFilter, 0);
+                // setTimeout(handleFilter, 0);
               }}
               className="w-4 h-4 text-[#267452] border-gray-300 rounded focus:ring-[#267452]"
             />
@@ -310,7 +337,7 @@ export default function CoursesList() {
       </div>
 
       {/* Courses Grid */}
-      {filteredCourses.length === 0 ? (
+      {courses.length === 0 ? (
         <div className="text-center py-12">
           <AcademicCapIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-xl font-medium text-gray-900 mb-2">
@@ -322,18 +349,18 @@ export default function CoursesList() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredCourses.map((course) => (
+          {courses.map((course) => (
             <div key={course.id} className="card hover:shadow-lg transition-shadow duration-200">
               {/* Course Image */}
               <div className="relative w-full h-48 bg-gray-200 rounded-lg mb-4 overflow-hidden">
                 <div className="w-full h-full bg-gradient-to-br from-[#267452] to-[#1f5e42] flex items-center justify-center">
                   <AcademicCapIcon className="w-16 h-16 text-white opacity-50" />
                 </div>
-                {course.isEnrolled && (
+                {/* {course.isEnrolled && (
                   <div className="absolute top-3 right-3 bg-[#267452] text-white px-2 py-1 rounded-full text-xs font-medium">
                     Đã đăng ký
                   </div>
-                )}
+                )} */}
                 <div className="absolute top-3 left-3 bg-white bg-opacity-90 px-2 py-1 rounded-full text-xs font-medium">
                   {course.level}
                 </div>
@@ -343,11 +370,11 @@ export default function CoursesList() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
-                    {course.category}
+                    {course.type}
                   </span>
-                  <span className="text-sm font-semibold text-[#267452]">
+                  {/* <span className="text-sm font-semibold text-[#267452]">
                     {course.price}
-                  </span>
+                  </span> */}
                 </div>
 
                 <h3 className="text-lg font-bold text-gray-900 line-clamp-2">
@@ -363,7 +390,9 @@ export default function CoursesList() {
                   <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
                     <UserIcon className="w-5 h-5 text-gray-600" />
                   </div>
-                  <span className="text-sm text-gray-700">{course.instructor}</span>
+                  <span className="text-sm text-gray-700">
+                    {course.teachers?.join(', ') || 'Không có giảng viên'}
+                  </span>
                 </div>
 
                 {/* Course Stats */}
@@ -371,21 +400,21 @@ export default function CoursesList() {
                   <div className="flex items-center space-x-4">
                     <span className="flex items-center">
                       <ClockIcon className="w-4 h-4 mr-1" />
-                      {course.duration}
+                      {course.total_time}
                     </span>
                     <span className="flex items-center">
                       <BookOpenIcon className="w-4 h-4 mr-1" />
-                      {course.totalLessons} bài
+                      {course.total_lessons} bài
                     </span>
                   </div>
                   <div className="flex items-center">
                     <StarIcon className="w-4 h-4 text-yellow-400 mr-1" />
-                    <span>{course.rating}</span>
+                    {/* <span>{course.rating}</span> */}
                   </div>
                 </div>
 
                 {/* Progress (if enrolled) */}
-                {course.isEnrolled && (
+                {/* {course.isEnrolled && (
                   <div>
                     <div className="flex justify-between text-sm text-gray-600 mb-1">
                       <span>Tiến độ</span>
@@ -399,11 +428,11 @@ export default function CoursesList() {
                     </div>
                     <p className="text-xs text-gray-500 mt-1">{course.progress}% hoàn thành</p>
                   </div>
-                )}
+                )} */}
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-1">
-                  {course.tags.slice(0, 3).map((tag) => (
+                  {course.tags?.slice(0, 3).map((tag) => (
                     <span
                       key={tag}
                       className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"
@@ -411,42 +440,42 @@ export default function CoursesList() {
                       {tag}
                     </span>
                   ))}
-                  {course.tags.length > 3 && (
+                  {course.tags && course.tags.length > 3 && (
                     <span className="text-xs text-gray-500">+{course.tags.length - 3}</span>
                   )}
                 </div>
 
                 {/* Action Button */}
                 <div className="pt-3 border-t border-gray-200">
-                  {course.isEnrolled ? (
+                  {/* {course.isEnrolled ? (
                     <div className="flex gap-2">
-                      <Link 
+                      <Link
                         href={`/courses/${course.id}/learn/1`}
                         className="btn-primary flex-1 flex items-center justify-center"
                       >
                         <PlayIcon className="w-4 h-4 mr-2" />
                         Tiếp tục học
                       </Link>
-                      <Link 
+                      <Link
                         href={`/courses/${course.id}`}
                         className="btn-secondary"
                       >
                         Chi tiết
                       </Link>
                     </div>
-                  ) : (
+                  ) : ( */}
                     <div className="flex gap-2">
                       <button className="btn-secondary flex-1">
                         Đăng ký khóa học
                       </button>
-                      <Link 
+                      <Link
                         href={`/courses/${course.id}`}
                         className="btn-secondary"
                       >
                         Xem chi tiết
                       </Link>
                     </div>
-                  )}
+                  {/* )} */}
                 </div>
               </div>
             </div>
@@ -455,7 +484,7 @@ export default function CoursesList() {
       )}
 
       {/* My Learning Progress Section (if user has enrolled courses) */}
-      {courses.some(course => course.isEnrolled) && (
+      {/* {courses.some(course => course.isEnrolled) && (
         <div className="mt-16">
           <div className="card">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
@@ -482,7 +511,7 @@ export default function CoursesList() {
                       </div>
                       <p className="text-xs text-gray-500 mt-1">{course.progress}% hoàn thành</p>
                     </div>
-                    <Link 
+                    <Link
                       href={`/courses/${course.id}/learn/1`}
                       className="btn-primary text-sm w-full text-center"
                     >
@@ -493,7 +522,7 @@ export default function CoursesList() {
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )} */}
+    </div >
   );
 }
