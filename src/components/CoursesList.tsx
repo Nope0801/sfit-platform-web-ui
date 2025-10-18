@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import {
   AcademicCapIcon,
   MagnifyingGlassIcon,
@@ -11,11 +11,11 @@ import {
   PlayIcon,
   BookOpenIcon,
   CheckCircleIcon,
-  FunnelIcon
-} from '@heroicons/react/24/outline';
-import { useCourseService } from '@/hooks/use-course-hooks';
-import { Course, CourseQuery } from '@/types/course';
-import { PageListResp } from '@/types/pagination';
+  FunnelIcon,
+} from "@heroicons/react/24/outline";
+import { useCourseService } from "@/hooks/use-course-hooks";
+import { Course, CourseQuery } from "@/types/course";
+import { PageListResp } from "@/types/pagination";
 // Sample courses data
 // const courses = [
 //   {
@@ -192,16 +192,24 @@ import { PageListResp } from '@/types/pagination';
 //   }
 // ];
 
-const categories = ['Tất cả', 'Frontend', 'Data Science', 'DevOps', 'Mobile', 'Design', 'Blockchain'];
-const levels = ['Tất cả', 'Cơ bản', 'Trung cấp', 'Nâng cao'];
+const categories = [
+  "Tất cả",
+  "Frontend",
+  "Data Science",
+  "DevOps",
+  "Mobile",
+  "Design",
+  "Blockchain",
+];
+const levels = ["Tất cả", "Cơ bản", "Trung cấp", "Nâng cao"];
 
 export default function CoursesList() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('Tất cả');
-  const [selectedLevel, setSelectedLevel] = useState('Tất cả');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("Tất cả");
+  const [selectedLevel, setSelectedLevel] = useState("Tất cả");
   const [showEnrolledOnly, setShowEnrolledOnly] = useState(false);
   const [classesPerPage] = useState(6);
-  const { getListCourse, courses, loading } = useCourseService()
+  const { getListCourse, loading } = useCourseService();
   const [totalItems, setTotalItems] = useState(0);
   const [pageData, setPageData] = useState<Course[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -237,8 +245,8 @@ export default function CoursesList() {
   const fetchCourses = useCallback(async () => {
     const resp: PageListResp<Course[]> | undefined = await getListCourse({
       title: searchTerm || undefined,
-      type: selectedCategory !== 'Tất cả' ? selectedCategory : undefined,
-      level: selectedLevel !== 'Tất cả' ? (selectedLevel as any) : undefined,
+      type: selectedCategory !== "Tất cả" ? selectedCategory : undefined,
+      level: selectedLevel !== "Tất cả" ? (selectedLevel as any) : undefined,
       only_registed: showEnrolledOnly || undefined,
       page: currentPage,
       page_size: classesPerPage,
@@ -251,7 +259,15 @@ export default function CoursesList() {
       setPageData([]);
       setTotalItems(0);
     }
-  }, [searchTerm, selectedCategory, selectedLevel, showEnrolledOnly, currentPage, classesPerPage, getListCourse]);
+  }, [
+    searchTerm,
+    selectedCategory,
+    selectedLevel,
+    showEnrolledOnly,
+    currentPage,
+    classesPerPage,
+    getListCourse,
+  ]);
 
   useEffect(() => {
     fetchCourses();
@@ -266,7 +282,8 @@ export default function CoursesList() {
           Khóa học
         </h1>
         <p className="text-gray-600">
-          Khám phá và tham gia các khóa học chất lượng cao được thiết kế bởi các chuyên gia
+          Khám phá và tham gia các khóa học chất lượng cao được thiết kế bởi các
+          chuyên gia
         </p>
       </div>
 
@@ -301,8 +318,10 @@ export default function CoursesList() {
             }}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#267452] focus:border-transparent outline-none"
           >
-            {categories.map(category => (
-              <option key={category} value={category}>{category}</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
             ))}
           </select>
 
@@ -315,8 +334,10 @@ export default function CoursesList() {
             }}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#267452] focus:border-transparent outline-none"
           >
-            {levels.map(level => (
-              <option key={level} value={level}>{level}</option>
+            {levels.map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
             ))}
           </select>
 
@@ -331,13 +352,15 @@ export default function CoursesList() {
               }}
               className="w-4 h-4 text-[#267452] border-gray-300 rounded focus:ring-[#267452]"
             />
-            <span className="text-sm text-gray-700">Chỉ khóa học đã đăng ký</span>
+            <span className="text-sm text-gray-700">
+              Chỉ khóa học đã đăng ký
+            </span>
           </label>
         </div>
       </div>
 
       {/* Courses Grid */}
-      {courses.length === 0 ? (
+      {!pageData || pageData.length === 0 ? (
         <div className="text-center py-12">
           <AcademicCapIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-xl font-medium text-gray-900 mb-2">
@@ -349,8 +372,11 @@ export default function CoursesList() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {courses.map((course) => (
-            <div key={course.id} className="card hover:shadow-lg transition-shadow duration-200">
+          {pageData.map((course) => (
+            <div
+              key={course.id}
+              className="card hover:shadow-lg transition-shadow duration-200"
+            >
               {/* Course Image */}
               <div className="relative w-full h-48 bg-gray-200 rounded-lg mb-4 overflow-hidden">
                 <div className="w-full h-full bg-gradient-to-br from-[#267452] to-[#1f5e42] flex items-center justify-center">
@@ -391,7 +417,7 @@ export default function CoursesList() {
                     <UserIcon className="w-5 h-5 text-gray-600" />
                   </div>
                   <span className="text-sm text-gray-700">
-                    {course.teachers?.join(', ') || 'Không có giảng viên'}
+                    {course.teachers?.join(", ") || "Không có giảng viên"}
                   </span>
                 </div>
 
@@ -441,7 +467,9 @@ export default function CoursesList() {
                     </span>
                   ))}
                   {course.tags && course.tags.length > 3 && (
-                    <span className="text-xs text-gray-500">+{course.tags.length - 3}</span>
+                    <span className="text-xs text-gray-500">
+                      +{course.tags.length - 3}
+                    </span>
                   )}
                 </div>
 
@@ -464,17 +492,17 @@ export default function CoursesList() {
                       </Link>
                     </div>
                   ) : ( */}
-                    <div className="flex gap-2">
-                      <button className="btn-secondary flex-1">
-                        Đăng ký khóa học
-                      </button>
-                      <Link
-                        href={`/courses/${course.id}`}
-                        className="btn-secondary"
-                      >
-                        Xem chi tiết
-                      </Link>
-                    </div>
+                  <div className="flex gap-2">
+                    <button className="btn-secondary flex-1">
+                      Đăng ký khóa học
+                    </button>
+                    <Link
+                      href={`/courses/${course.id}`}
+                      className="btn-secondary"
+                    >
+                      Xem chi tiết
+                    </Link>
+                  </div>
                   {/* )} */}
                 </div>
               </div>
@@ -523,6 +551,6 @@ export default function CoursesList() {
           </div>
         </div>
       )} */}
-    </div >
+    </div>
   );
 }

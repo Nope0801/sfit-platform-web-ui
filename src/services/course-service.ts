@@ -13,6 +13,7 @@ import {
   RegisteredUsersResponse,
   CourseRateRequest,
   CourseRegisterRequest,
+  UsersCoursesRegisterRequest,
   CourseGeneralInformationResponse,
 } from "@/types/course";
 import { PageListResp } from "@/types/pagination";
@@ -113,6 +114,13 @@ class CourseService {
   // POST /courses/register
   async registerUserToCourse(req: CourseRegisterRequest): Promise<void> {
     await apiClient.post("/courses/register", req);
+  }
+
+  // PUT /users/courses
+  async registerUsersToCourse(
+    req: UsersCoursesRegisterRequest
+  ): Promise<void> {
+    await apiClient.put("/users/courses", req);
   }
 
   // GET /users/:user_id/registered-courses
