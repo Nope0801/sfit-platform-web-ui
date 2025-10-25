@@ -7,11 +7,11 @@ export function useLessonService() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const getLessonById = useCallback(async (lessonId: string): Promise<Lesson | null> => {
+  const getLessonById = useCallback(async (lessonId: string, moduleId: string): Promise<Lesson | null> => {
     setLoading(true);
     setError(null);
     try {
-      const lesson = await lessonService.getLessonById(lessonId);
+      const lesson = await lessonService.getLessonDetail(moduleId,lessonId);
       return lesson;
     } catch (err: any) {
       setError(err);

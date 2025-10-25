@@ -55,7 +55,7 @@ class CourseService {
   async deleteCourse(course_id: string): Promise<void> {
     await apiClient.delete(`/courses/${course_id}`);
   }
-  
+
   // POST /courses/favourite/:course_id
   async markCourseAsFavourite(course_id: string): Promise<void> {
     await apiClient.post(`/courses/favourite/${course_id}`);
@@ -64,8 +64,6 @@ class CourseService {
   async deleteModule(moduleId: string): Promise<void> {
     await apiClient.delete(`/courses/modules/${moduleId}`);
   }
-  
-
 
   // DELETE /courses/favourite/:course_id
   async unmarkCourseAsFavourite(course_id: string): Promise<void> {
@@ -99,20 +97,37 @@ class CourseService {
   }
 
   // GET /courses/:course_id/registered-users
+  // async getRegisteredUsers(
+  //   course_id: string,
+  //   page = 1,
+  //   pageSize = 10,
+  //   status?: string
+  // ): Promise<RegisteredUsersResponse> {
+  //   const res = await apiClient.get(`/courses/${course_id}/users`, {
+  //     params: { page, pageSize, status },
+  //   });
+  //   return res.data.data;
+  // }
+    // GET /courses/:course_id/registered-users
   async getRegisteredUsers(
     course_id: string,
     page = 1,
-    pageSize = 10
+    pageSize = 10,
+    status?: string // Made status optional
   ): Promise<RegisteredUsersResponse> {
-    const res = await apiClient.get(`/courses/${course_id}/registered-users`, {
-      params: { page, pageSize },
+    const params: any = { page, page_size: pageSize };
+    if (status) {
+      params.status = status; // Add status only if provided
+    }
+    const res = await apiClient.get(`/courses/${course_id}/users`, {
+      params,
     });
     return res.data.data;
   }
 
   // POST /courses/register
   async registerUserToCourse(req: CourseRegisterRequest): Promise<void> {
-    await apiClient.post("/courses/register", req);
+    await apiClient.put("/users/courses", req);
   }
 
   // GET /users/:user_id/registered-courses

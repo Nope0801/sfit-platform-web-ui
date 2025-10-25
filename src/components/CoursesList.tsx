@@ -14,8 +14,9 @@ import {
   FunnelIcon
 } from '@heroicons/react/24/outline';
 import { useCourseService } from '@/hooks/use-course-hooks';
-import { Course, CourseQuery } from '@/types/course';
+import { Course, CourseQuery, CourseRegisterRequest } from '@/types/course';
 import { PageListResp } from '@/types/pagination';
+import { useTokenPayload } from '@/hooks/token-hooks';
 // Sample courses data
 // const courses = [
 //   {
@@ -201,10 +202,12 @@ export default function CoursesList() {
   const [selectedLevel, setSelectedLevel] = useState('Tất cả');
   const [showEnrolledOnly, setShowEnrolledOnly] = useState(false);
   const [classesPerPage] = useState(6);
-  const { getListCourse, courses, loading } = useCourseService()
+  const { getListCourse, courses, loading, registerUserToCourse, getRegisteredUsers } = useCourseService()
   const [totalItems, setTotalItems] = useState(0);
   const [pageData, setPageData] = useState<Course[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   // const handleFilter = () => {
   //   let filtered = courses;
 
@@ -234,6 +237,7 @@ export default function CoursesList() {
   // useState(() => {
   //   handleFilter();
   // });
+
   const fetchCourses = useCallback(async () => {
     const resp: PageListResp<Course[]> | undefined = await getListCourse({
       title: searchTerm || undefined,
@@ -245,6 +249,7 @@ export default function CoursesList() {
     });
 
     if (resp) {
+      setTotalPages(Math.ceil(resp.total_count / classesPerPage));
       setPageData(resp.items);
       setTotalItems(resp.total_count);
     } else {
@@ -257,6 +262,53 @@ export default function CoursesList() {
     fetchCourses();
   }, [fetchCourses]);
 
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+  const handleRegisterCourse = async (courseId: string) => {
+    const tokenPayload = useTokenPayload();
+    const userId = tokenPayload?.sub;
+
+    if (!userId) {
+      alert('Không thể lấy thông tin người dùng. Vui lòng đăng nhập lại.');
+      return;
+    }
+
+    const request: CourseRegisterRequest = {
+      course_id: courseId,
+      user_ids: [userId],
+      status: "REQUEST"
+    };
+
+    const success = await registerUserToCourse(request);
+    if (success) {
+      alert('Đăng ký khóa học thành công!');
+      fetchCourses(); // Làm mới danh sách khóa học
+    } else {
+      alert('Đăng ký khóa học thất bại. Vui lòng thử lại.');
+    }
+  };
+  // console.log(courses);
+  const handleViewCourseDetail = async (courseId: string) => {
+    const tokenPayload = useTokenPayload();
+    const userId = tokenPayload?.sub;
+
+    if (!userId) {
+      alert('Không thể lấy thông tin người dùng. Vui lòng đăng nhập lại.');
+      return;
+    }
+
+    const registeredUsers = await getRegisteredUsers(courseId, 1, 10, 'Learned');
+    const isUserRegistered = Array.isArray(registeredUsers?.users) && registeredUsers.users.some(users => users.id === userId);
+
+    if (isUserRegistered) {
+      window.location.href = `/courses/${courseId}`;
+    } else {
+      alert('Bạn không có quyền truy cập vào khóa học này.');
+    }
+  };
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
@@ -337,7 +389,7 @@ export default function CoursesList() {
       </div>
 
       {/* Courses Grid */}
-      {courses.length === 0 ? (
+      {(courses?.length ?? 0) === 0 ? (
         <div className="text-center py-12">
           <AcademicCapIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-xl font-medium text-gray-900 mb-2">
@@ -432,9 +484,9 @@ export default function CoursesList() {
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-1">
-                  {course.tags?.slice(0, 3).map((tag) => (
+                  {course.tags?.slice(0, 3).map((tag, index) => (
                     <span
-                      key={tag}
+                      key={`${tag}-${index}`} // Ensure the key is unique
                       className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"
                     >
                       {tag}
@@ -464,17 +516,19 @@ export default function CoursesList() {
                       </Link>
                     </div>
                   ) : ( */}
-                    <div className="flex gap-2">
-                      <button className="btn-secondary flex-1">
-                        Đăng ký khóa học
-                      </button>
-                      <Link
-                        href={`/courses/${course.id}`}
-                        className="btn-secondary"
-                      >
-                        Xem chi tiết
-                      </Link>
-                    </div>
+                  <div className="flex gap-2">
+                    <button
+                      className="btn-secondary flex-1"
+                      onClick={() => handleRegisterCourse(course.id)}>
+                      Đăng ký khóa học
+                    </button>
+                    <button
+                      className="btn-secondary"
+                      onClick={() => handleViewCourseDetail(course.id)}
+                    >
+                      Xem chi tiết
+                    </button>
+                  </div>
                   {/* )} */}
                 </div>
               </div>
@@ -523,6 +577,27 @@ export default function CoursesList() {
           </div>
         </div>
       )} */}
+
+      {/* Pagination */}
+      <div className="flex justify-center items-center mt-8 space-x-4">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 border rounded-lg ${currentPage === 1 ? 'text-gray-400' : 'text-[#267452]'}`}
+        >
+          Trước
+        </button>
+        <span className="text-gray-700">
+          Trang {currentPage} / {totalPages}
+        </span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-2 border rounded-lg ${currentPage === totalPages ? 'text-gray-400' : 'text-[#267452]'}`}
+        >
+          Sau
+        </button>
+      </div>
     </div >
   );
 }
