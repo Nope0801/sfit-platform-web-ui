@@ -226,6 +226,8 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
 
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
+  const [allSelectedAnswers, setAllSelectedAnswers] = useState<number[][]>([]); // New state
+
   const { getLessonById, updateStatusLessonAttendance, getUsersByLessonId } = useLessonService();
   const { getCourseDetailByID, courseDetail } = useCourseService();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -266,21 +268,6 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
     // console.log(currentLesson.Type);
     // console.log(currentQuestionIndex);
     // console.log(selectedAnswers);
-    await updateStatusLessonAttendance(userId, currentLessonID, attendanceReq);
-  };
-
-  const updateAttendanceQuiz = async () => {
-    if (!currentLesson || !userId || !currentLessonID) return;
-
-    // Construct the attendance request object
-    const attendanceReq: UpdateStatusLessonAttendanceReq = {
-      duration, // Total duration spent on the lesson
-      status: 'present', // Status indicating the user's presence
-      answer: currentLesson.QuizContent.Data.map((_: unknown, index: number) => selectedAnswers[index] || []),
-      device_id: '' // Optional: Add a device ID if required
-    };
-
-    // Call the API to update the attendance status
     await updateStatusLessonAttendance(userId, currentLessonID, attendanceReq);
   };
   // const currentLesson = courseData.currentLesson;
@@ -357,6 +344,7 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
     setDuration(0);
     setCurrentQuestionIndex(0);
     setSelectedAnswers([]);
+    setFeedback(null);
     startTrackingDuration();
   };
   useEffect(() => {
@@ -381,7 +369,23 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
     const videoIdMatch = url.match(/(?:\?v=|\/embed\/|\/v\/|youtu\.be\/|\/watch\?v=|&v=)([^&?\/]+)/);
     return videoIdMatch ? `https://www.youtube.com/embed/${videoIdMatch[1]}` : url;
   };
+  const updateAttendanceQuiz = async () => {
+    if (!currentLesson || !userId || !currentLessonID) return;
+    const updatedAnswers = [...allSelectedAnswers, selectedAnswers];
+    setAllSelectedAnswers(updatedAnswers);
+    console.log(updatedAnswers);
 
+    const attendanceReq: UpdateStatusLessonAttendanceReq = {
+      duration, // Total duration spent on the lesson
+      status: 'present', // Status indicating the user's presence
+      answer: updatedAnswers,
+      device_id: ''
+    };
+    console.log(attendanceReq);
+    setAllSelectedAnswers([]);
+    // Call the API to update the attendance status
+    await updateStatusLessonAttendance(userId, currentLessonID, attendanceReq);
+  };
   // console.log(currentLesson?.QuizContent.Data);
   // console.log(currentLesson.ReadingContent.Data.content);
   const renderLessonContent = () => {
@@ -494,7 +498,6 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
                 <iframe
                   src={convertToEmbedUrl(currentLesson.OnlineContent.Data.video_url)}
                   title={currentLesson.title}
-                  // frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   className="w-full h-full"
@@ -533,21 +536,22 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
 
         const handleNextQuestion = () => {
           if (currentQuestionIndex < quiz.length - 1) {
+            setAllSelectedAnswers((prev) => [...prev, selectedAnswers]);
             setCurrentQuestionIndex(currentQuestionIndex + 1);
-            setSelectedAnswers([]); // Reset selected answers for the next question
-            setFeedback(null); // Clear feedback for the next question
+            setSelectedAnswers([]);
+            setFeedback(null);
           }
         };
 
         const handlePreviousQuestion = () => {
           if (currentQuestionIndex > 0) {
             setCurrentQuestionIndex(currentQuestionIndex - 1);
-            setSelectedAnswers([]); // Reset selected answers for the previous question
-            setFeedback(null); // Clear feedback for the previous question
+            setSelectedAnswers([]); 
+            setFeedback(null); 
           }
         };
-        // console.log(currentLesson.QuizContent.Data[currentQuestionIndex].correct_answers);
         const handleSubmit = async () => {
+
           if (selectedAnswers.length === 0) {
             setFeedback("Vui lòng chọn ít nhất một đáp án trước khi nộp.");
             return;
@@ -558,12 +562,6 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
           const isCorrect =
             selectedAnswers.length === correctAnswers.length &&
             selectedAnswers.every((answer) => correctAnswers.includes(answer));
-          // console.log(selectLesson);
-          // if (isCorrect) {
-          //   setFeedback("Chúc mừng! Bạn đã trả lời đúng.");
-          // } else {
-          //   setFeedback("Rất tiếc, bạn đã trả lời sai.");
-          // }
 
           const attendanceList = await getUsersByLessonId(currentLessonID!, { page: 1, page_size: -1 });
           const existingUser = attendanceList?.items.find((attendance) => attendance.userId === userId);
@@ -571,10 +569,8 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
           if (!existingUser || existingUser.quizPoint === undefined) {
             await updateAttendanceQuiz();
           }
-
-          // setIsSubmitted(true);
+          setFeedback("Đã submit, mời chuyển bài học khác.");
         };
-        // const currentQuestion = quiz.questions[quiz.currentQuestion];
 
         return (
           <div className="bg-white rounded-lg p-8">
@@ -618,6 +614,11 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
                 </label>
               ))}
             </div>
+            {feedback && (
+              <div className="mt-4 text-green-600 font-medium">
+                {feedback}
+              </div>
+            )}
             <div className="flex justify-between">
               <button
                 onClick={handlePreviousQuestion}
@@ -818,7 +819,7 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
                 </button>
                 {expandedModules[module.id] && (
                   <div className="pb-2 bg-gray-25/50">
-                    {module.lessons.map((lesson) => {
+                    {module.lessons?.map((lesson) => {
                       const IconComponent = typeIcons[lesson.type as keyof typeof typeIcons]
                       const isActive = lesson.id === currentLesson?.id;
                       return (

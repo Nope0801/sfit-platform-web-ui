@@ -300,7 +300,8 @@ export default function CoursesList() {
       return;
     }
 
-    const registeredUsers = await getRegisteredUsers(courseId, 1, 10, 'Learned');
+    const registeredUsers = await getRegisteredUsers(courseId, 1, -1, "LEARNED");
+    console.log(registeredUsers);
     const isUserRegistered = Array.isArray(registeredUsers?.users) && registeredUsers.users.some(users => users.id === userId);
 
     if (isUserRegistered) {
@@ -363,7 +364,6 @@ export default function CoursesList() {
             value={selectedLevel}
             onChange={(e) => {
               setSelectedLevel(e.target.value);
-              // setTimeout(handleFilter, 0);
             }}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#267452] focus:border-transparent outline-none"
           >
