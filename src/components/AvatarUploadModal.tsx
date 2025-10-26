@@ -2,7 +2,7 @@
 
 import { CameraIcon, CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
-
+import Image from "next/image";
 interface AvatarUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -61,10 +61,11 @@ export default function AvatarUploadModal({
           <div className="relative inline-block">
             <div className="w-32 h-32 bg-gray-200 rounded-full overflow-hidden mx-auto mb-4">
               {preview ? (
-                <img
+                <Image
                   src={preview}
                   alt="Preview"
-                  className="w-full h-full object-cover"
+                  layout="fill"
+                  objectFit="cover"
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-[#267452] to-[#1f5e42] flex items-center justify-center">

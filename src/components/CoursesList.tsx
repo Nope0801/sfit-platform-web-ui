@@ -1,20 +1,17 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
 import {
   AcademicCapIcon,
   MagnifyingGlassIcon,
   ClockIcon,
   UserIcon,
   StarIcon,
-  PlayIcon,
   BookOpenIcon,
-  CheckCircleIcon,
   FunnelIcon
 } from '@heroicons/react/24/outline';
 import { useCourseService } from '@/hooks/use-course-hooks';
-import { Course, CourseQuery, CourseRegisterRequest } from '@/types/course';
+import { Course, CourseRegisterRequest } from '@/types/course';
 import { PageListResp } from '@/types/pagination';
 import { useTokenPayload } from '@/hooks/token-hooks';
 // Sample courses data
@@ -202,12 +199,15 @@ export default function CoursesList() {
   const [selectedLevel, setSelectedLevel] = useState('Tất cả');
   const [showEnrolledOnly, setShowEnrolledOnly] = useState(false);
   const [classesPerPage] = useState(6);
-  const { getListCourse, courses, loading, registerUserToCourse, getRegisteredUsers } = useCourseService()
+  const { getListCourse, courses, registerUserToCourse, getRegisteredUsers } = useCourseService()
   const [totalItems, setTotalItems] = useState(0);
   const [pageData, setPageData] = useState<Course[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
+  console.log(totalItems);
+  console.log(pageData);
+  const tokenPayload = useTokenPayload();
+  
   // const handleFilter = () => {
   //   let filtered = courses;
 
@@ -268,7 +268,6 @@ export default function CoursesList() {
     }
   };
   const handleRegisterCourse = async (courseId: string) => {
-    const tokenPayload = useTokenPayload();
     const userId = tokenPayload?.sub;
 
     if (!userId) {
@@ -292,7 +291,6 @@ export default function CoursesList() {
   };
   // console.log(courses);
   const handleViewCourseDetail = async (courseId: string) => {
-    const tokenPayload = useTokenPayload();
     const userId = tokenPayload?.sub;
 
     if (!userId) {

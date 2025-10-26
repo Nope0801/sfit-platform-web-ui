@@ -8,7 +8,6 @@ import {
   CalendarIcon,
   ChatBubbleLeftRightIcon,
   DocumentTextIcon,
-  UserGroupIcon,
   AcademicCapIcon,
   CheckCircleIcon,
   XCircleIcon,

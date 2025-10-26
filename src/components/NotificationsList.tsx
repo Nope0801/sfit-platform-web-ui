@@ -10,7 +10,6 @@ import {
   ClockIcon,
   FunnelIcon,
   EyeIcon,
-  EyeSlashIcon,
   TrashIcon
 } from '@heroicons/react/24/outline';
 

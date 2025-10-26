@@ -202,7 +202,7 @@ export default function NewsList() {
             </div>
           ) : (
             <div className="space-y-8">
-              {filteredNews.map((article, index) => (
+              {filteredNews.map((article) => (
                 <article
                   key={article.id}
                   className={`card hover:shadow-lg transition-shadow duration-200 lg:flex lg:space-x-6`}

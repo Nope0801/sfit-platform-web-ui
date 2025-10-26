@@ -2,30 +2,21 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   PlayIcon,
-  PauseIcon,
   ChevronLeftIcon,
-  ChevronRightIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   BookOpenIcon,
   DocumentTextIcon,
   AcademicCapIcon,
-  CheckCircleIcon,
   ClockIcon,
-  SpeakerWaveIcon,
-  SpeakerXMarkIcon,
-  ArrowsPointingOutIcon,
-  Cog6ToothIcon,
   ListBulletIcon
 } from '@heroicons/react/24/outline';
-import { CheckCircleIcon as CheckCircleSolidIcon } from '@heroicons/react/24/solid';
 import { useLessonService } from '@/hooks/use-lesson-hooks';
 import { useCourseService } from '@/hooks/use-course-hooks';
-import { Lesson, LessonType, UpdateStatusLessonAttendanceReq } from '@/types/lesson';
-import Module from 'module';
-import { CourseDetailResponse } from '@/types/course';
+import { Lesson, UpdateStatusLessonAttendanceReq } from '@/types/lesson';
 import { useTokenSubject } from '@/hooks/token-hooks';
 
 // interface CourseData {
@@ -215,14 +206,16 @@ const typeIcons = {
 export default function CourseLearningPage({ courseId, lessonId }: { courseId: string; lessonId: string }) {
   // const [courseData, setCourseData] = useState(mockCourseData);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [currentTime, setCurrentTime] = useState(0);
+  console.log(lessonId);
+  // const [isPlaying, setIsPlaying] = useState(false);
+  // const [isMuted, setIsMuted] = useState(false);
+  // const [isFullscreen, setIsFullscreen] = useState(false);
+  // const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  // const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [notes, setNotes] = useState('');
-  const [showNotes, setShowNotes] = useState(false);
+  const [showNotes] = useState(false);
+  // setShowNotes
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
 
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
@@ -230,7 +223,7 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
 
   const { getLessonById, updateStatusLessonAttendance, getUsersByLessonId } = useLessonService();
   const { getCourseDetailByID, courseDetail } = useCourseService();
-  const videoRef = useRef<HTMLVideoElement>(null);
+  // const videoRef = useRef<HTMLVideoElement>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
   const [currentLessonID, setCurrentLessonID] = useState<string | null>(null);
@@ -254,7 +247,7 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
   const updateAttendance = async () => {
     if (!currentLesson || !userId || !currentLessonID) return;
     const attendanceList = await getUsersByLessonId(currentLessonID, { page: 1, page_size: -1 });
-    const existingUser = attendanceList?.items.find((attendance) => attendance.id === userId);
+    const existingUser = attendanceList?.items.find((attendance) => (attendance as any).id === userId);
     let updatedDuration = duration;
     if (existingUser) {
       updatedDuration += existingUser.duration ?? 0;
@@ -389,7 +382,7 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
   // console.log(currentLesson?.QuizContent.Data);
   // console.log(currentLesson.ReadingContent.Data.content);
   const renderLessonContent = () => {
-    switch (currentLesson?.Type) {
+    switch ((currentLesson as any)?.Type) {
       case 'Online':
         // return (
         //   <div className="relative bg-black rounded-lg overflow-hidden">
@@ -492,12 +485,12 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
           //  </div>
 
           <div className="relative bg-black rounded-lg overflow-hidden">
-            <h2 className="text-xl font-semibold mb-2">{currentLesson.title}</h2>
-            {currentLesson.OnlineContent.Data.video_url ? (
+            <h2 className="text-xl font-semibold mb-2">{currentLesson?.title}</h2>
+            {(currentLesson as any).OnlineContent.Data.video_url ? (
               <div className="aspect-video">
                 <iframe
-                  src={convertToEmbedUrl(currentLesson.OnlineContent.Data.video_url)}
-                  title={currentLesson.title}
+                  src={convertToEmbedUrl((currentLesson as any).OnlineContent.Data.video_url)}
+                  title={currentLesson?.title}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   className="w-full h-full"
@@ -515,10 +508,10 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
         return (
           <div className="bg-white rounded-lg p-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">{currentLesson?.title}</h2>
-            {currentLesson.ReadingContent.Data.content ? (
+            {(currentLesson as any).ReadingContent.Data.content ? (
               <div
                 className="prose prose-lg max-w-none text-gray-800"
-                dangerouslySetInnerHTML={{ __html: currentLesson.ReadingContent.Data.content }}
+                dangerouslySetInnerHTML={{ __html: (currentLesson as any).ReadingContent.Data.content }}
               />
             ) : (
               <p className="text-gray-500">Nội dung bài đọc không khả dụng.</p>
@@ -526,7 +519,7 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
           </div>
         );
       case 'Quiz':
-        const quiz = currentLesson.QuizContent.Data;
+        const quiz = (currentLesson as any).QuizContent.Data;
         if (!quiz) return null;
         const handleAnswerToggle = (index: number) => {
           setSelectedAnswers((prev) =>
@@ -546,8 +539,8 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
         const handlePreviousQuestion = () => {
           if (currentQuestionIndex > 0) {
             setCurrentQuestionIndex(currentQuestionIndex - 1);
-            setSelectedAnswers([]); 
-            setFeedback(null); 
+            setSelectedAnswers([]);
+            setFeedback(null);
           }
         };
         const handleSubmit = async () => {
@@ -557,11 +550,11 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
             return;
           }
 
-          const correctAnswers = currentLesson.QuizContent.Data[currentQuestionIndex].correct_answers;
+          // const correctAnswers = currentLesson.QuizContent.Data[currentQuestionIndex].correct_answers;
 
-          const isCorrect =
-            selectedAnswers.length === correctAnswers.length &&
-            selectedAnswers.every((answer) => correctAnswers.includes(answer));
+          // const isCorrect =
+          //   selectedAnswers.length === correctAnswers.length &&
+          //   selectedAnswers.every((answer) => correctAnswers.includes(answer));
 
           const attendanceList = await getUsersByLessonId(currentLessonID!, { page: 1, page_size: -1 });
           const existingUser = attendanceList?.items.find((attendance) => attendance.userId === userId);
@@ -577,10 +570,10 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
             <div className="mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold">
-                  Câu hỏi {currentQuestionIndex + 1}/{currentLesson.QuizContent.Data.length}
+                  Câu hỏi {currentQuestionIndex + 1}/{(currentLesson as any).QuizContent.Data.length}
                 </h3>
                 <div className="text-sm text-gray-600">
-                  Quiz: {currentLesson.Title}
+                  Quiz: {(currentLesson as any).Title}
                 </div>
               </div>
             </div>
@@ -707,17 +700,17 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
       case 'Offline':
         return (
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">{currentLesson.title}</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">{currentLesson?.title}</h2>
             <div className="flex items-center gap-4 mb-4">
               <div className="flex items-center gap-2">
                 <span className="text-gray-600 font-medium">📍 Location:</span>
-                <span className="text-gray-800">{currentLesson.OfflineContent.Data.location || 'Not specified'}</span>
+                <span className="text-gray-800">{(currentLesson as any).OfflineContent.Data.location || 'Not specified'}</span>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-gray-600 font-medium">📅 Date:</span>
-                <span className="text-gray-800">{formatDate(currentLesson.OfflineContent.Data.date) || 'Not specified'}</span>
+                <span className="text-gray-800">{formatDate((currentLesson as any).OfflineContent.Data.date) || 'Not specified'}</span>
               </div>
             </div>
           </div>
@@ -744,10 +737,12 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
 
               <div className="flex items-center gap-2">
                 <Link href="/">
-                  <img
+                  <Image
                     src="https://www.sfit.com.vn/assets/logoCLB-DTD9nCuy.jpg"
                     alt="SFIT Logo"
-                    className="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                    width={40}
+                    height={40}
+                    className="rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
                   />
                 </Link>
               </div>
@@ -911,19 +906,19 @@ export default function CourseLearningPage({ courseId, lessonId }: { courseId: s
               <div className='flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mt-6'>
                 <div className="rounded-lg p-3 lg:p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl lg:text-2xl font-bold text-gray-900">{currentLesson?.Title}</h2>
+                    <h2 className="text-xl lg:text-2xl font-bold text-gray-900">{(currentLesson as any)?.Title}</h2>
                   </div>
 
                   <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
                     <span className="flex items-center gap-1">
                       <ClockIcon className="w-4 h-4" />
-                      {formatTime(currentLesson?.Duration)}
+                      {formatTime((currentLesson as any)?.Duration)}
                     </span>
-                    <span className="capitalize">{currentLesson?.Type}</span>
+                    <span className="capitalize">{(currentLesson as any)?.Type}</span>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-800">{currentLesson?.Description || 'Not specified'}</span>
+                      <span className="text-gray-800">{(currentLesson as any)?.Description || 'Not specified'}</span>
                     </div>
                   </div>
                   {/* {currentLesson.content && (

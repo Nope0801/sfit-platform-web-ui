@@ -6,55 +6,47 @@ import {
   PlayIcon,
   ClockIcon,
   UserGroupIcon,
-  AcademicCapIcon,
   StarIcon,
   BookOpenIcon,
-  DocumentTextIcon,
   CheckCircleIcon,
-  LockClosedIcon,
   CalendarIcon,
-  TrophyIcon,
   ChartBarIcon
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
-import { CourseDetailResponse, LessonResponse } from '@/types/course';
-import { Module } from '@/types/module';
-import { Lesson } from '@/types/lesson';
 import { useCourseService } from '@/hooks/use-course-hooks';
-import { useLessonService } from '@/hooks/use-lesson-hooks';
-interface Course {
-  id: string;
-  title: string;
-  description: string;
-  instructors: Instructor[];
-  duration: string;
-  totalLessons: number;
-  completedLessons: number;
-  rating: number;
-  totalRatings: number;
-  enrolled: number;
-  level: 'Beginner' | 'Intermediate' | 'Advanced';
-  price: number;
-  originalPrice?: number;
-  thumbnail: string;
-  isEnrolled: boolean;
-  progress: number;
-  category: string;
-  tags: string[];
-  lastUpdated: string;
-  language: string;
-  certificate: boolean;
-  requirements: string[];
-  objectives: string[];
-  modules: Module[];
-  reviews: Review[];
-}
+// interface Course {
+//   id: string;
+//   title: string;
+//   description: string;
+//   instructors: Instructor[];
+//   duration: string;
+//   totalLessons: number;
+//   completedLessons: number;
+//   rating: number;
+//   totalRatings: number;
+//   enrolled: number;
+//   level: 'Beginner' | 'Intermediate' | 'Advanced';
+//   price: number;
+//   originalPrice?: number;
+//   thumbnail: string;
+//   isEnrolled: boolean;
+//   progress: number;
+//   category: string;
+//   tags: string[];
+//   lastUpdated: string;
+//   language: string;
+//   certificate: boolean;
+//   requirements: string[];
+//   objectives: string[];
+//   modules: Module[];
+//   reviews: Review[];
+// }
 
-interface Instructor {
-  id: string;
-  name: string;
-  avatar: string;
-}
+// interface Instructor {
+//   id: string;
+//   name: string;
+//   avatar: string;
+// }
 
 // interface Module {
 //   id: string;
@@ -74,177 +66,177 @@ interface Instructor {
 //   isFree?: boolean;
 // }
 
-interface Review {
-  id: string;
-  userName: string;
-  userAvatar: string;
-  rating: number;
-  comment: string;
-  date: string;
-}
+// interface Review {
+//   id: string;
+//   userName: string;
+//   userAvatar: string;
+//   rating: number;
+//   comment: string;
+//   date: string;
+// }
 
-const mockCourse: Course = {
-  id: '1',
-  title: 'React.js từ cơ bản đến nâng cao',
-  description: 'Khóa học toàn diện về React.js, bao gồm các khái niệm cơ bản, hooks, context, và các pattern nâng cao. Bạn sẽ xây dựng những ứng dụng thực tế và học cách tối ưu hóa performance.',
-  instructors: [
-    {
-      id: '1',
-      name: 'Nguyễn Văn A',
-      avatar: '/api/placeholder/60/60'
-    },
-    {
-      id: '2',
-      name: 'Trần Thị B',
-      avatar: '/api/placeholder/60/60'
-    }
-  ],
-  duration: '12 giờ',
-  totalLessons: 45,
-  completedLessons: 18,
-  rating: 4.8,
-  totalRatings: 124,
-  enrolled: 1250,
-  level: 'Intermediate',
-  price: 0,
-  thumbnail: '/api/placeholder/800/450',
-  isEnrolled: true,
-  progress: 40,
-  category: 'Lập trình',
-  tags: ['React', 'JavaScript', 'Frontend', 'Web Development'],
-  lastUpdated: '2025-01-15',
-  language: 'Tiếng Việt',
-  certificate: true,
-  requirements: [
-    'Kiến thức cơ bản về HTML, CSS',
-    'Hiểu biết về JavaScript ES6+',
-    'Máy tính có thể chạy Node.js'
-  ],
-  objectives: [
-    'Nắm vững các khái niệm cơ bản của React',
-    'Sử dụng thành thạo React Hooks',
-    'Quản lý state với Context API và Redux',
-    'Xây dựng ứng dụng React hoàn chỉnh',
-    'Tối ưu hóa performance của ứng dụng'
-  ],
-  modules: [
-    {
-      id: '1',
-      title: 'Giới thiệu về React',
-      duration: '2.5 giờ',
-      isUnlocked: true,
-      lessons: [
-        {
-          id: '1',
-          title: 'React là gì?',
-          duration: '15 phút',
-          type: 'video',
-          isCompleted: true,
-          isUnlocked: true,
-          isFree: true
-        },
-        {
-          id: '2',
-          title: 'Cài đặt môi trường',
-          duration: '20 phút',
-          type: 'video',
-          isCompleted: true,
-          isUnlocked: true
-        },
-        {
-          id: '3',
-          title: 'JSX và Components',
-          duration: '25 phút',
-          type: 'video',
-          isCompleted: true,
-          isUnlocked: true
-        },
-        {
-          id: '4',
-          title: 'Bài tập: Tạo component đầu tiên',
-          duration: '30 phút',
-          type: 'assignment',
-          isCompleted: false,
-          isUnlocked: true
-        }
-      ]
-    },
-    {
-      id: '2',
-      title: 'React Hooks',
-      duration: '3 giờ',
-      isUnlocked: true,
-      lessons: [
-        {
-          id: '5',
-          title: 'useState Hook',
-          duration: '30 phút',
-          type: 'video',
-          isCompleted: false,
-          isUnlocked: true
-        },
-        {
-          id: '6',
-          title: 'useEffect Hook',
-          duration: '35 phút',
-          type: 'video',
-          isCompleted: false,
-          isUnlocked: true
-        },
-        {
-          id: '7',
-          title: 'Custom Hooks',
-          duration: '40 phút',
-          type: 'video',
-          isCompleted: false,
-          isUnlocked: false
-        }
-      ]
-    },
-    {
-      id: '3',
-      title: 'State Management',
-      duration: '4 giờ',
-      isUnlocked: false,
-      lessons: [
-        {
-          id: '8',
-          title: 'Context API',
-          duration: '45 phút',
-          type: 'video',
-          isCompleted: false,
-          isUnlocked: false
-        },
-        {
-          id: '9',
-          title: 'Redux Toolkit',
-          duration: '60 phút',
-          type: 'video',
-          isCompleted: false,
-          isUnlocked: false
-        }
-      ]
-    }
-  ],
-  reviews: [
-    {
-      id: '1',
-      userName: 'Trần Thị B',
-      userAvatar: '/api/placeholder/40/40',
-      rating: 5,
-      comment: 'Khóa học rất hay và dễ hiểu. Thầy giảng rất tận tình!',
-      date: '2025-01-10'
-    },
-    {
-      id: '2',
-      userName: 'Lê Văn C',
-      userAvatar: '/api/placeholder/40/40',
-      rating: 4,
-      comment: 'Nội dung chi tiết, ví dụ thực tế. Chỉ mong có thêm bài tập.',
-      date: '2025-01-08'
-    }
-  ]
-};
+// const mockCourse: Course = {
+//   id: '1',
+//   title: 'React.js từ cơ bản đến nâng cao',
+//   description: 'Khóa học toàn diện về React.js, bao gồm các khái niệm cơ bản, hooks, context, và các pattern nâng cao. Bạn sẽ xây dựng những ứng dụng thực tế và học cách tối ưu hóa performance.',
+//   instructors: [
+//     {
+//       id: '1',
+//       name: 'Nguyễn Văn A',
+//       avatar: '/api/placeholder/60/60'
+//     },
+//     {
+//       id: '2',
+//       name: 'Trần Thị B',
+//       avatar: '/api/placeholder/60/60'
+//     }
+//   ],
+//   duration: '12 giờ',
+//   totalLessons: 45,
+//   completedLessons: 18,
+//   rating: 4.8,
+//   totalRatings: 124,
+//   enrolled: 1250,
+//   level: 'Intermediate',
+//   price: 0,
+//   thumbnail: '/api/placeholder/800/450',
+//   isEnrolled: true,
+//   progress: 40,
+//   category: 'Lập trình',
+//   tags: ['React', 'JavaScript', 'Frontend', 'Web Development'],
+//   lastUpdated: '2025-01-15',
+//   language: 'Tiếng Việt',
+//   certificate: true,
+//   requirements: [
+//     'Kiến thức cơ bản về HTML, CSS',
+//     'Hiểu biết về JavaScript ES6+',
+//     'Máy tính có thể chạy Node.js'
+//   ],
+//   objectives: [
+//     'Nắm vững các khái niệm cơ bản của React',
+//     'Sử dụng thành thạo React Hooks',
+//     'Quản lý state với Context API và Redux',
+//     'Xây dựng ứng dụng React hoàn chỉnh',
+//     'Tối ưu hóa performance của ứng dụng'
+//   ],
+//   modules: [
+//     {
+//       id: '1',
+//       title: 'Giới thiệu về React',
+//       duration: '2.5 giờ',
+//       isUnlocked: true,
+//       lessons: [
+//         {
+//           id: '1',
+//           title: 'React là gì?',
+//           duration: '15 phút',
+//           type: 'video',
+//           isCompleted: true,
+//           isUnlocked: true,
+//           isFree: true
+//         },
+//         {
+//           id: '2',
+//           title: 'Cài đặt môi trường',
+//           duration: '20 phút',
+//           type: 'video',
+//           isCompleted: true,
+//           isUnlocked: true
+//         },
+//         {
+//           id: '3',
+//           title: 'JSX và Components',
+//           duration: '25 phút',
+//           type: 'video',
+//           isCompleted: true,
+//           isUnlocked: true
+//         },
+//         {
+//           id: '4',
+//           title: 'Bài tập: Tạo component đầu tiên',
+//           duration: '30 phút',
+//           type: 'assignment',
+//           isCompleted: false,
+//           isUnlocked: true
+//         }
+//       ]
+//     },
+//     {
+//       id: '2',
+//       title: 'React Hooks',
+//       duration: '3 giờ',
+//       isUnlocked: true,
+//       lessons: [
+//         {
+//           id: '5',
+//           title: 'useState Hook',
+//           duration: '30 phút',
+//           type: 'video',
+//           isCompleted: false,
+//           isUnlocked: true
+//         },
+//         {
+//           id: '6',
+//           title: 'useEffect Hook',
+//           duration: '35 phút',
+//           type: 'video',
+//           isCompleted: false,
+//           isUnlocked: true
+//         },
+//         {
+//           id: '7',
+//           title: 'Custom Hooks',
+//           duration: '40 phút',
+//           type: 'video',
+//           isCompleted: false,
+//           isUnlocked: false
+//         }
+//       ]
+//     },
+//     {
+//       id: '3',
+//       title: 'State Management',
+//       duration: '4 giờ',
+//       isUnlocked: false,
+//       lessons: [
+//         {
+//           id: '8',
+//           title: 'Context API',
+//           duration: '45 phút',
+//           type: 'video',
+//           isCompleted: false,
+//           isUnlocked: false
+//         },
+//         {
+//           id: '9',
+//           title: 'Redux Toolkit',
+//           duration: '60 phút',
+//           type: 'video',
+//           isCompleted: false,
+//           isUnlocked: false
+//         }
+//       ]
+//     }
+//   ],
+//   reviews: [
+//     {
+//       id: '1',
+//       userName: 'Trần Thị B',
+//       userAvatar: '/api/placeholder/40/40',
+//       rating: 5,
+//       comment: 'Khóa học rất hay và dễ hiểu. Thầy giảng rất tận tình!',
+//       date: '2025-01-10'
+//     },
+//     {
+//       id: '2',
+//       userName: 'Lê Văn C',
+//       userAvatar: '/api/placeholder/40/40',
+//       rating: 4,
+//       comment: 'Nội dung chi tiết, ví dụ thực tế. Chỉ mong có thêm bài tập.',
+//       date: '2025-01-08'
+//     }
+//   ]
+// };
 
 const levelColors = {
   'Beginner': 'bg-green-100 text-green-800',
@@ -252,18 +244,19 @@ const levelColors = {
   'Advanced': 'bg-red-100 text-red-800'
 };
 
-const typeIcons = {
-  video: PlayIcon,
-  reading: BookOpenIcon,
-  quiz: DocumentTextIcon,
-  assignment: AcademicCapIcon
-};
+// const typeIcons = {
+//   video: PlayIcon,
+//   reading: BookOpenIcon,
+//   quiz: DocumentTextIcon,
+//   assignment: AcademicCapIcon
+// };
 
 export default function CourseDetailPage({ courseId }: { courseId: string }) {
   const [activeTab, setActiveTab] = useState<'overview' | 'curriculum' | 'reviews'>('overview');
-  const course = mockCourse; // In real app, fetch based on courseId
-  const { getCourseDetailByID, courseDetail, loading: courseLoading } = useCourseService();
-  const { getLessonById } = useLessonService();
+  // const course = mockCourse; 
+  // In real app, fetch based on courseId
+  const { getCourseDetailByID, courseDetail } = useCourseService();
+  // const { getLessonById } = useLessonService();
   useEffect(() => {
     getCourseDetailByID(courseId);
   }, [courseId, getCourseDetailByID]);
@@ -286,7 +279,7 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
       <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
         <Link href="/courses" className="hover:text-primary">Khóa học</Link>
         <span>/</span>
-        <span className="text-gray-900">{course.title}</span>
+        <span className="text-gray-900">{courseDetail?.title}</span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -356,9 +349,9 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2">
-              {courseDetail?.tags.map((tag) => (
+              {courseDetail?.tags.map((tag, index) => (
                 <span
-                  key={tag}
+                  key={`${tag}-${index}`}
                   className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
                 >
                   {tag}
@@ -650,7 +643,7 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
             </div>
 
             {/* Progress */}
-            {course.isEnrolled && (
+            {/* {course.isEnrolled && (
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700">Tiến độ học tập</span>
@@ -666,10 +659,10 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
                   {course.completedLessons}/{course.totalLessons} bài học hoàn thành
                 </p>
               </div>
-            )}
+            )} */}
 
             {/* Price */}
-            <div className="mb-6">
+            {/* <div className="mb-6">
               {course.price === 0 ? (
                 <p className="text-3xl font-bold text-green-600">Miễn phí</p>
               ) : (
@@ -684,11 +677,11 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
                   )}
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Actions */}
             <div className="space-y-3">
-              {course.isEnrolled ? (
+              {/* {course.isEnrolled ? (
                 <Link
                   href={`/courses/${courseId}/learn/${course.modules[0].lessons[0].id}`}
                   className="btn-primary w-full text-center block"
@@ -699,7 +692,13 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
                 <button className="btn-primary w-full">
                   Đăng ký học
                 </button>
-              )}
+              )} */}
+              <Link
+                href={`/courses/${courseId}/learn/1`}
+                className="btn-primary w-full text-center block"
+              >
+                Tiếp tục học
+              </Link>
 
               <button className="btn-secondary w-full">
                 Thêm vào yêu thích
@@ -707,7 +706,7 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
             </div>
 
             {/* Course includes */}
-            <div className="mt-6 pt-6">
+            {/* <div className="mt-6 pt-6">
               <h4 className="font-semibold text-gray-900 mb-4">Khóa học bao gồm:</h4>
               <ul className="space-y-3 text-sm">
                 <li className="flex items-center gap-3">
@@ -727,7 +726,7 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
                   <span>Truy cập trọn đời</span>
                 </li>
               </ul>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

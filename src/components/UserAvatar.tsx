@@ -1,5 +1,5 @@
 import { UserIcon } from '@heroicons/react/24/outline';
-
+import Image from 'next/image';
 interface UserAvatarProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   name?: string;
@@ -27,20 +27,21 @@ export default function UserAvatar({
   avatar,
   className = ''
 }: UserAvatarProps) {
-  const initials = name
-    .split(' ')
-    .map(word => word[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+  // const initials = name
+  //   .split(' ')
+  //   .map(word => word[0])
+  //   .join('')
+  //   .toUpperCase()
+  //   .slice(0, 2);
 
   return (
     <div className={`${sizeClasses[size]} bg-[#267452] rounded-full flex items-center justify-center overflow-hidden ${className}`}>
       {avatar ? (
-        <img
+        <Image
           src={avatar}
           alt={name}
-          className="w-full h-full object-cover"
+          layout="fill"
+          objectFit="cover"
         />
       ) : (
         <UserIcon className={`${iconSizes[size]} text-white`} />

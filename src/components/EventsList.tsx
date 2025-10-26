@@ -4,11 +4,9 @@ import { useState } from 'react';
 import {
   CalendarIcon,
   MapPinIcon,
-  ClockIcon,
   UserGroupIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
-  PlusIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
