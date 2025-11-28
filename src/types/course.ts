@@ -47,6 +47,12 @@ export interface CourseRegisterRequest {
   status: string;
 }
 
+export interface UsersCoursesRegisterRequest {
+  course_id: string;
+  user_ids: string[];
+  status: string;
+}
+
 export interface CourseRateRequest {
   course: string;
   star: number;
@@ -180,18 +186,67 @@ export interface Course {
   id: string;
   title: string;
   description: string;
+  instructors: Instructor[];
+  duration: string;
+  totalLessons: number;
+  completedLessons: number;
+  rating: number;
+  totalRatings: number;
+  enrolled: number;
+  level: "Beginner" | "Intermediate" | "Advanced";
+  price: number;
+  originalPrice?: number;
+  thumbnail: string;
+  isEnrolled: boolean;
+  progress: number;
+  category: string;
+  tags: string[];
+  lastUpdated: string;
+  language: string;
+  certificate: boolean;
+  requirements: string[];
+  objectives: string[];
+  modules: Module[];
+  reviews: Review[];
   type: string;
   target: string[];
   require: string[];
   teachers: string[];
-  language: string;
   total_time: number;
   total_lessons: number;
-  certificate: boolean;
-  level: CourseLevel;
   created_at: string;
   updated_at: string;
-  tags?: string[];
+}
+
+export interface Instructor {
+  id: string;
+  name: string;
+  avatar: string;
+}
+
+export interface Module {
+  id: string;
+  title: string;
+  duration: string;
+  isUnlocked: boolean;
+  lessons: Lesson[];
+}
+
+export interface Lesson {
+  id: string;
+  title: string;
+  duration: string;
+  type: "video" | "reading" | "quiz" | "assignment" | "Zoom";
+  isCompleted: boolean;
+  isUnlocked: boolean;
+}
+
+export interface Review {
+  id: string;
+  user: string;
+  rating: number;
+  comment: string;
+  date: string;
 }
 
 export interface LessonRequest {

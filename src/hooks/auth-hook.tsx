@@ -4,6 +4,7 @@ import { HookCallback } from "@/types/hook-template";
 import { ResponseTemplate } from "@/types/response-template";
 import { AxiosError } from "axios";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export function useLogin(): HookCallback<LoginRequest> {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -47,4 +48,26 @@ export function useRegister(): HookCallback<RegisterRequest> {
   return { isLoading, func: register };
 }
 
-export function useLogout() {}
+export function useLogout(): { isLoading: boolean; func: () => Promise<void> } {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
+
+  async function logout(): Promise<void> {
+    setIsLoading(true);
+    try {
+      try {
+        await authService.logout();
+      } catch {
+        // ignore API logout errors; still clear local state
+      }
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("accessToken");
+      }
+      router.push("/auth/login");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  return { isLoading, func: logout };
+}

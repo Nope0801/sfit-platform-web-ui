@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -239,9 +239,9 @@ import { useCourseService } from '@/hooks/use-course-hooks';
 // };
 
 const levelColors = {
-  'Beginner': 'bg-green-100 text-green-800',
-  'Intermediate': 'bg-yellow-100 text-yellow-800',
-  'Advanced': 'bg-red-100 text-red-800'
+  Beginner: "bg-green-100 text-green-800",
+  Intermediate: "bg-yellow-100 text-yellow-800",
+  Advanced: "bg-red-100 text-red-800",
 };
 
 // const typeIcons = {
@@ -263,7 +263,8 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
   console.log(courseDetail);
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, index) => {
-      const IconComponent = index < Math.floor(rating) ? StarSolidIcon : StarIcon;
+      const IconComponent =
+        index < Math.floor(rating) ? StarSolidIcon : StarIcon;
       return (
         <IconComponent
           key={index}
@@ -273,11 +274,29 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
     });
   };
 
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="text-center text-gray-600">Đang tải...</div>
+      </div>
+    );
+  }
+
+  if (!course) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="text-center text-gray-600">Không tìm thấy khóa học</div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-        <Link href="/courses" className="hover:text-primary">Khóa học</Link>
+        <Link href="/courses" className="hover:text-primary">
+          Khóa học
+        </Link>
         <span>/</span>
         <span className="text-gray-900">{courseDetail?.title}</span>
       </div>
@@ -327,7 +346,9 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
 
             {/* Instructors */}
             <div className="mb-6">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Giảng viên</h3>
+              <h3 className="text-sm font-medium text-gray-700 mb-3">
+                Giảng viên
+              </h3>
               <div className="space-y-3">
                 {courseDetail?.teachers.map((teachers) => (
                   <div key={teachers} className="flex items-center gap-3">
@@ -365,9 +386,9 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
             <div className="">
               <nav className="flex">
                 {[
-                  { id: 'overview', label: 'Tổng quan' },
-                  { id: 'curriculum', label: 'Nội dung khóa học' },
-                  { id: 'reviews', label: 'Đánh giá' }
+                  { id: "overview", label: "Tổng quan" },
+                  { id: "curriculum", label: "Nội dung khóa học" },
+                  { id: "reviews", label: "Đánh giá" },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -385,11 +406,13 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
 
             <div className="p-6">
               {/* Overview Tab */}
-              {activeTab === 'overview' && (
+              {activeTab === "overview" && (
                 <div className="space-y-6">
                   {/* What you'll learn */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Bạn sẽ học được gì</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Bạn sẽ học được gì
+                    </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {courseDetail?.target.map((objective, index) => (
                         <div key={index} className="flex items-start gap-3">
@@ -402,7 +425,9 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
 
                   {/* Requirements */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Yêu cầu</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Yêu cầu
+                    </h3>
                     <ul className="space-y-2">
                       {courseDetail?.require.map((requirement, index) => (
                         <li key={index} className="flex items-start gap-3">
@@ -415,7 +440,9 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
 
                   {/* Course Info */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Thông tin khóa học</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Thông tin khóa học
+                    </h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
                         <CalendarIcon className="w-8 h-8 text-gray-600 mx-auto mb-2" />
@@ -447,7 +474,7 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
               )}
 
               {/* Curriculum Tab */}
-              {activeTab === 'curriculum' && (
+              {activeTab === "curriculum" && (
                 <div className="space-y-4">
                   {Array.isArray(courseDetail?.course_content) && courseDetail.course_content.length > 0 ? (
                     courseDetail.course_content.map((module) => (
@@ -505,11 +532,20 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
                         {module.lessons.map((lesson) => {
                           const IconComponent = typeIcons[lesson.type];
                           return (
-                            <div key={lesson.id} className="p-4 flex items-center justify-between">
+                            <div
+                              key={lesson.id}
+                              className="p-4 flex items-center justify-between"
+                            >
                               <div className="flex items-center gap-3">
                                 <IconComponent className="w-5 h-5 text-gray-600" />
                                 <div>
-                                  <p className={`font-medium ${lesson.isUnlocked ? 'text-gray-900' : 'text-gray-500'}`}>
+                                  <p
+                                    className={`font-medium ${
+                                      lesson.isUnlocked
+                                        ? "text-gray-900"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
                                     {lesson.title}
                                     {lesson.isFree && (
                                       <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
@@ -517,7 +553,9 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
                                       </span>
                                     )}
                                   </p>
-                                  <p className="text-sm text-gray-600">{lesson.duration}</p>
+                                  <p className="text-sm text-gray-600">
+                                    {lesson.duration}
+                                  </p>
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
@@ -532,7 +570,9 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
                                     href={`/courses/${course.id}/learn/${lesson.id}`}
                                     className="text-primary hover:text-primary-dark"
                                   >
-                                    {lesson.isCompleted ? 'Xem lại' : 'Học ngay'}
+                                    {lesson.isCompleted
+                                      ? "Xem lại"
+                                      : "Học ngay"}
                                   </Link>
                                 )}
                               </div>
@@ -546,7 +586,7 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
               )}
 
               {/* Reviews Tab */}
-              {activeTab === 'reviews' && (
+              {activeTab === "reviews" && (
                 <div className="space-y-6">
                   {/* Rating Summary */}
                   <div className="flex items-center gap-8 p-6 bg-gray-50 rounded-lg">
@@ -560,8 +600,13 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
 
                     <div className="flex-1">
                       {[5, 4, 3, 2, 1].map((star) => (
-                        <div key={star} className="flex items-center gap-3 mb-2">
-                          <span className="text-sm text-gray-600 w-8">{star} sao</span>
+                        <div
+                          key={star}
+                          className="flex items-center gap-3 mb-2"
+                        >
+                          <span className="text-sm text-gray-600 w-8">
+                            {star} sao
+                          </span>
                           <div className="flex-1 bg-gray-200 rounded-full h-2">
                             <div
                               className="bg-yellow-400 h-2 rounded-full"
@@ -609,12 +654,16 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
-                              <p className="font-medium text-gray-900">{review.userName}</p>
+                              <p className="font-medium text-gray-900">
+                                {review.userName}
+                              </p>
                               <div className="flex items-center">
                                 {renderStars(review.rating)}
                               </div>
                               <span className="text-sm text-gray-500">
-                                {new Date(review.date).toLocaleDateString('vi-VN')}
+                                {new Date(review.date).toLocaleDateString(
+                                  "vi-VN"
+                                )}
                               </span>
                             </div>
                             <p className="text-gray-700">{review.comment}</p>
@@ -646,8 +695,12 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
             {/* {course.isEnrolled && (
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">Tiến độ học tập</span>
-                  <span className="text-sm text-gray-600">{course.progress}%</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    Tiến độ học tập
+                  </span>
+                  <span className="text-sm text-gray-600">
+                    {course.progress}%
+                  </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
@@ -656,7 +709,8 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
                   ></div>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
-                  {course.completedLessons}/{course.totalLessons} bài học hoàn thành
+                  {course.completedLessons}/{course.totalLessons} bài học hoàn
+                  thành
                 </p>
               </div>
             )} */}
@@ -672,7 +726,7 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
                   </p>
                   {course.originalPrice && (
                     <p className="text-lg text-gray-500 line-through">
-                      {course.originalPrice.toLocaleString('vi-VN')} VNĐ
+                      {course.originalPrice.toLocaleString("vi-VN")} VNĐ
                     </p>
                   )}
                 </div>
@@ -689,8 +743,16 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
                   Tiếp tục học
                 </Link>
               ) : (
-                <button className="btn-primary w-full">
-                  Đăng ký học
+                <button
+                  onClick={handleRegister}
+                  disabled={isRegistering || !userId}
+                  className={`btn-primary w-full ${
+                    isRegistering || !userId
+                      ? "opacity-60 cursor-not-allowed"
+                      : ""
+                  }`}
+                >
+                  {isRegistering ? "Đang đăng ký..." : "Đăng ký học"}
                 </button>
               )} */}
               <Link
