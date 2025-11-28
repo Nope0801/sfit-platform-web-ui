@@ -1,5 +1,6 @@
-export type CourseLevel = "Beginner" | "Intermediate" | "Advanced";
 import { LessonType, Quiz } from "./lesson";
+export type CourseLevel = "Beginner" | "Intermediate" | "Advanced";
+
 export interface CreateCourseRequest {
   title: string;
   description: string;
@@ -42,6 +43,8 @@ export interface SetFavouriteCourseRequest {
 export interface CourseRegisterRequest {
   course_id: string;
   user_ids?: string[];
+  msvs?: string[];
+  status: string;
 }
 
 export interface UsersCoursesRegisterRequest {
@@ -246,105 +249,6 @@ export interface Review {
   date: string;
 }
 
-export interface CreateCourseRequest {
-  title: string;
-  description: string;
-  type: string;
-  target?: string[];
-  require?: string[];
-  teachers?: string[];
-  language: string;
-  certificate: boolean;
-  level: CourseLevel;
-  tags?: string[];
-}
-
-export interface UpdateCourseRequest {
-  title?: string;
-  description?: string;
-  type?: string;
-  target?: string[];
-  require?: string[];
-  teachers?: string[];
-  language?: string;
-  certificate?: boolean;
-  level?: CourseLevel;
-  tags?: string[];
-}
-
-export interface AddModuleToCourseRequest {
-  module_title: string;
-}
-
-export interface GetUserProgressInCourseRequest {
-  course_id: string;
-  user_id: string;
-}
-
-export interface SetFavouriteCourseRequest {
-  course_id: string;
-}
-
-export interface CourseRegisterRequest {
-  course_id: string;
-  user_ids?: string[];
-}
-
-export interface CourseRateRequest {
-  course: string;
-  star: number;
-  comment?: string;
-}
-
-export interface CreateCourseResponse {
-  id: string;
-  createdAt: string;
-}
-
-export interface UpdateCourseResponse {
-  updated_at: string;
-}
-
-export interface CourseDetailResponse {
-  id: string;
-  title: string;
-  description: string;
-  like: boolean;
-  type: string;
-  level: CourseLevel;
-  teachers: string[];
-  star: number;
-  total_lessons: number;
-  tags: string[];
-  target: string[];
-  require: string[];
-  total_time: number;
-  total_registered: number;
-  updated_at: string;
-  language: string;
-  course_content: CourseContentResponse[];
-  rate: RateResponse[];
-  is_registered?: boolean;
-}
-
-export interface CourseContentResponse {
-  id: string;
-  module_title: string;
-  lessons: LessonResponse[];
-}
-
-export interface AddModuleToCourseResponse {
-  module_id: string;
-  course_id: string;
-  module_title: string;
-  created_at: string;
-}
-
-export interface GetUserProgressInCourseResponse {
-  learned: number;
-  total_lesson: number;
-}
-
 export interface LessonRequest {
   title: string;
   description?: string;
@@ -357,95 +261,3 @@ export interface LessonRequest {
   readingContent?: string;
   position?: number;
 }
-
-export interface RateResponse {
-  name: string;
-  comment: string;
-  star: number;
-  created_at: string;
-}
-
-export interface RegisteredUserInfo {
-  id: string;
-  username: string;
-  email: string;
-}
-
-export interface RegisteredUsersResponse {
-  users: RegisteredUserInfo[];
-  total_count: number;
-  page: number;
-  page_size: number;
-}
-
-export interface ModuleInfo {
-  id: string;
-  module_title: string;
-  total_time: number;
-  lessons: LessonInfo[];
-}
-
-export interface LessonInfo {
-  id: string;
-  title: string;
-  learned: boolean;
-  study_time: number;
-}
-
-export interface CourseGeneralInformationResponse {
-  id: string;
-  title: string;
-  description: string;
-  type: string;
-  number_lessons: number;
-  teachers: string[];
-  time_learn: number;
-  rate: number;
-  tags: string[];
-  learned_lessons: number;
-  registed: boolean;
-}
-
-export interface CourseQuery {
-  title?: string;
-  only_registed?: boolean;
-  type?: string;
-  level?: CourseLevel;
-  user_id?: string;
-  course_id?: string;
-  page: number;
-  page_size: number;
-}
-
-export interface ApiError {
-  message: string;
-  code: string;
-  details?: any;
-}
-// export interface Class {
-//     id: number;
-//     title: string;
-//     description: string;
-//     teacher: string;
-//     time: string;
-//     schedule: string;
-//     address: string;
-//     status: 'ongoing' | 'upcoming' | 'past';
-// }
-
-// export interface Test {
-//     id: number;
-//     title: string;
-//     description: string;
-//     isRanking: boolean;
-//     date: string;
-//     time: string;
-//     status: 'upcoming' | 'ongoing' | 'past';
-//     participants: number;
-// }
-
-// export interface ApiError {
-//   message: string
-//   code: string
-//   details?: any
-// }

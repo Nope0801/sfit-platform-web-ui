@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback} from "react";
 import { courseService } from "@/services/course-service";
 import {
   Course,
@@ -32,22 +32,19 @@ export function useCourseService() {
   const [error, setError] = useState<string | null>(null);
 
   // List courses
-  const getListCourse = useCallback(
-    async (query: CourseQuery): Promise<PageListResp<Course[]> | undefined> => {
-      setLoading(true);
-      setError(null);
-      try {
-        const resp = await courseService.getListCourse(query);
-        setCourses(Array.isArray(resp?.items) ? resp.items : []);
-        return resp;
-      } catch (err: any) {
-        setError(err?.message || "Failed to fetch courses");
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
+  const getListCourse = useCallback(async (query: CourseQuery): Promise<PageListResp<Course[]> | undefined> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const resp = await courseService.getListCourse(query);
+      setCourses(resp.items);
+      return resp;
+    } catch (err: any) {
+      setError(err?.message || "Failed to fetch courses");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
   // Get course detail
   const getCourseDetailByID = useCallback(
     async (
@@ -208,17 +205,13 @@ export function useCourseService() {
     async (
       course_id: string,
       page = 1,
-      pageSize = 10
+      pageSize = 10,
+      status?: string
     ): Promise<RegisteredUsersResponse | undefined> => {
       setLoading(true);
       setError(null);
       try {
-        const resp = await courseService.getRegisteredUsers(
-          course_id,
-          page,
-          pageSize
-        );
-        // setRegisteredUsers(resp);
+        const resp = await courseService.getRegisteredUsers(course_id, page, pageSize, status);
         return resp;
       } catch (err: any) {
         setError(err?.message || "Failed to fetch registered users");
@@ -228,6 +221,7 @@ export function useCourseService() {
     },
     []
   );
+
 
   // Register user to course
   const registerUserToCourse = useCallback(

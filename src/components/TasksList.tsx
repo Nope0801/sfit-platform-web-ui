@@ -6,15 +6,10 @@ import {
   CalendarIcon,
   ClockIcon,
   UserIcon,
-  FlagIcon,
   CheckCircleIcon,
-  XCircleIcon,
   ExclamationTriangleIcon,
-  MagnifyingGlassIcon,
   FunnelIcon,
-  PlusIcon,
   PlayIcon,
-  PauseIcon
 } from '@heroicons/react/24/outline';
 
 // Sample tasks data

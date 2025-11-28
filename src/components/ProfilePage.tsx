@@ -1,5 +1,5 @@
 "use client";
-
+import Image from 'next/image';
 import { useTokenSubject } from "@/hooks/token-hooks";
 import useUserProfile, {
   useUpdateUserProfile,
@@ -201,10 +201,12 @@ export default function ProfilePage() {
         {/* Cover Image */}
         <div className="w-full h-48 md:h-64 bg-gradient-to-br from-[#267452] to-[#1f5e42] rounded-lg overflow-hidden relative">
           {profileData && profileData.cover_image ? (
-            <img
+            <Image
               src={profileData.cover_image}
               alt="Cover"
-              className="w-full h-full object-cover"
+              layout="fill"
+              objectFit="cover"
+              className="w-full h-full"
             />
           ) : (
             <div className="absolute inset-0 bg-black bg-opacity-30"></div>
@@ -222,9 +224,11 @@ export default function ProfilePage() {
           <div className="relative">
             <div className="w-32 h-32 bg-gray-300 rounded-full border-4 border-white overflow-hidden">
               {profileData && profileData.avatar ? (
-                <img
+                <Image
                   src={profileData.avatar}
                   alt="Profile"
+                  width={128}
+                  height={128}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -385,7 +389,7 @@ export default function ProfilePage() {
                           type="url"
                           value={
                             formData.social_link?.[
-                              platform as keyof typeof formData.social_link
+                            platform as keyof typeof formData.social_link
                             ]
                           }
                           onChange={(e) =>
@@ -397,7 +401,7 @@ export default function ProfilePage() {
                         <a
                           href={
                             profileData?.social_link?.[
-                              platform as keyof typeof profileData.social_link
+                            platform as keyof typeof profileData.social_link
                             ]
                           }
                           target="_blank"
@@ -406,7 +410,7 @@ export default function ProfilePage() {
                         >
                           {
                             profileData?.social_link?.[
-                              platform as keyof typeof profileData.social_link
+                            platform as keyof typeof profileData.social_link
                             ]
                           }
                         </a>
@@ -442,11 +446,10 @@ export default function ProfilePage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center px-4 py-2 text-sm font-medium border-b-2 transition-colors duration-200 ${
-                      activeTab === tab.id
-                        ? "border-[#267452] text-[#267452]"
-                        : "border-transparent text-gray-600 hover:text-gray-900"
-                    }`}
+                    className={`flex items-center px-4 py-2 text-sm font-medium border-b-2 transition-colors duration-200 ${activeTab === tab.id
+                      ? "border-[#267452] text-[#267452]"
+                      : "border-transparent text-gray-600 hover:text-gray-900"
+                      }`}
                   >
                     <IconComponent className="w-4 h-4 mr-2" />
                     {tab.label}

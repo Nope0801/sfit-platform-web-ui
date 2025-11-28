@@ -3,12 +3,8 @@ import {
   NewspaperIcon,
   AcademicCapIcon,
   CalendarIcon,
-  BellIcon,
   ClipboardDocumentListIcon,
-  ArrowRightIcon,
   ClockIcon,
-  UserGroupIcon,
-  TrophyIcon
 } from '@heroicons/react/24/outline';
 
 // Sample data
