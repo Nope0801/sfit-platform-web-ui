@@ -8,13 +8,13 @@ import {
   UserIcon,
   StarIcon,
   BookOpenIcon,
-  CheckCircleIcon,
-  PlayIcon,
+  // CheckCircleIcon,
+  // PlayIcon,
 } from "@heroicons/react/24/outline";
 import { useCourseService } from "@/hooks/use-course-hooks";
 import { useTokenSubject } from "@/hooks/token-hooks";
-import { Course, CourseGeneralInformationResponse } from "@/types/course";
-import { PageListResp } from "@/types/pagination";
+import { CourseGeneralInformationResponse } from "@/types/course";
+// import { PageListResp } from "@/types/pagination";
 
 export default function MyCoursesList() {
   const { getRegisteredCourses, loading } = useCourseService();

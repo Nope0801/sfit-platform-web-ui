@@ -274,21 +274,21 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="text-center text-gray-600">Đang tải...</div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="max-w-7xl mx-auto px-4 py-8">
+  //       <div className="text-center text-gray-600">Đang tải...</div>
+  //     </div>
+  //   );
+  // }
 
-  if (!course) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="text-center text-gray-600">Không tìm thấy khóa học</div>
-      </div>
-    );
-  }
+  // if (!course) {
+  //   return (
+  //     <div className="max-w-7xl mx-auto px-4 py-8">
+  //       <div className="text-center text-gray-600">Không tìm thấy khóa học</div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
