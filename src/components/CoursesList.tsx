@@ -207,15 +207,14 @@ export default function CoursesList() {
   const [selectedLevel, setSelectedLevel] = useState("Tất cả");
   const [showEnrolledOnly, setShowEnrolledOnly] = useState(false);
   const [classesPerPage] = useState(6);
-  const { getListCourse, courses, registerUserToCourse, getRegisteredUsers } = useCourseService()
+  const { getListCourse, courses, registerUserToCourse, getRegisteredUsers, getRegisteredCourses } = useCourseService()
   const [totalItems, setTotalItems] = useState(0);
   const [pageData, setPageData] = useState<Course[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  console.log(totalItems);
-  console.log(pageData);
   const tokenPayload = useTokenPayload();
-  
+  const [registeredCourses, setRegisteredCourses] = useState<any>(null);
+
   // const handleFilter = () => {
   //   let filtered = courses;
 
@@ -245,7 +244,25 @@ export default function CoursesList() {
   // useState(() => {
   //   handleFilter();
   // });
+  const fetchRegisteredCourses = useCallback(async () => {
+    const userId = tokenPayload?.sub;
+    if (!userId) {
+      console.error("Không thể lấy thông tin người dùng. Vui lòng đăng nhập lại.");
+      return;
+    }
 
+    try {
+      const resp = await getRegisteredCourses(userId, 1, 10);
+      setRegisteredCourses(resp);
+      console.log("Registered Courses:", resp);
+    } catch (error) {
+      console.error("Lỗi khi gọi fetchRegisteredCourses:", error);
+    }
+  }, [getRegisteredCourses, tokenPayload]);
+
+  useEffect(() => {
+    fetchRegisteredCourses();
+  }, []);
   const fetchCourses = useCallback(async () => {
     const resp: PageListResp<Course[]> | undefined = await getListCourse({
       title: searchTerm || undefined,
@@ -300,28 +317,24 @@ export default function CoursesList() {
     const success = await registerUserToCourse(request);
     if (success) {
       alert('Đăng ký khóa học thành công!');
-      fetchCourses(); // Làm mới danh sách khóa học
+      fetchCourses(); 
     } else {
       alert('Đăng ký khóa học thất bại. Vui lòng thử lại.');
     }
   };
-  // console.log(courses);
   const handleViewCourseDetail = async (courseId: string) => {
-    const userId = tokenPayload?.sub;
+    const course = registeredCourses?.items.find((item: any) => item.id === courseId);
 
-    if (!userId) {
-      alert('Không thể lấy thông tin người dùng. Vui lòng đăng nhập lại.');
+    if (!course) {
+      alert("Không tìm thấy khóa học.");
       return;
     }
 
-    const registeredUsers = await getRegisteredUsers(courseId, 1, -1, "LEARNED");
-    console.log(registeredUsers);
-    const isUserRegistered = Array.isArray(registeredUsers?.users) && registeredUsers.users.some(users => users.id === userId);
-
-    if (isUserRegistered) {
+    if (course.status === "LEARNED") {
       window.location.href = `/courses/${courseId}`;
     } else {
-      alert('Bạn không có quyền truy cập vào khóa học này.');
+      alert("Bạn không có quyền truy cập vào khóa học này.");
+      console.log(course.status);
     }
   };
   return (

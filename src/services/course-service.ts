@@ -144,7 +144,7 @@ class CourseService {
     page = 1,
     page_size = 10
   ): Promise<PageListResp<CourseGeneralInformationResponse[]>> {
-    const res = await apiClient.get(`/users/${user_id}/registered-courses`, {
+    const res = await apiClient.get(`/users/${user_id}/courses`, {
       params: { page, page_size },
     });
     return res.data.data;
